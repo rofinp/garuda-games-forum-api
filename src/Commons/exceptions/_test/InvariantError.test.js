@@ -2,7 +2,7 @@ const ClientError = require('../ClientError');
 const InvariantError = require('../InvariantError');
 
 describe('InvariantError', () => {
-  it('should create an error correctly', () => {
+  it('should create an InvariantError correctly', () => {
     const invariantError = new InvariantError('an error occurs');
 
     expect(invariantError).toBeInstanceOf(InvariantError);

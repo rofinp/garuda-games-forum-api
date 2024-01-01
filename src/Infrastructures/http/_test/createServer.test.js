@@ -1,7 +1,7 @@
 const createServer = require('../createServer');
 
 describe('HTTP server', () => {
-  it('should response 404 when request unregistered route', async () => {
+  it('should respond with a 404 status code when an unregistered route is requested', async () => {
     // Arrange
     const server = await createServer({});
 
@@ -18,8 +18,8 @@ describe('HTTP server', () => {
   it('should handle server error correctly', async () => {
     // Arrange
     const requestPayload = {
-      username: 'dicoding',
-      fullname: 'Dicoding Indonesia',
+      username: 'rofinugraha',
+      fullname: 'Rofi Nugraha',
       password: 'super_secret',
     };
     const server = await createServer({}); // fake injection

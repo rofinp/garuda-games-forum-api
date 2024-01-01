@@ -8,34 +8,34 @@ class AuthenticationRepositoryPostgres extends AuthenticationRepository {
   }
 
   async addToken(token) {
-    const query = {
-      text: 'INSERT INTO authentications VALUES ($1)',
+    const insertTokenQuery = {
+      text: 'INSERT INTO authentications (token) VALUES ($1)',
       values: [token],
     };
 
-    await this._pool.query(query);
+    await this._pool.query(insertTokenQuery);
   }
 
   async checkAvailabilityToken(token) {
-    const query = {
+    const checkTokenQuery = {
       text: 'SELECT * FROM authentications WHERE token = $1',
       values: [token],
     };
 
-    const result = await this._pool.query(query);
+    const result = await this._pool.query(checkTokenQuery);
 
-    if (result.rows.length === 0) {
+    if (!result.rowCount) {
       throw new InvariantError('refresh token tidak ditemukan di database');
     }
   }
 
   async deleteToken(token) {
-    const query = {
+    const deleteTokenQuery = {
       text: 'DELETE FROM authentications WHERE token = $1',
       values: [token],
     };
 
-    await this._pool.query(query);
+    await this._pool.query(deleteTokenQuery);
   }
 }
 

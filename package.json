@@ -1,7 +1,7 @@
 {
-  "name": "forum-api",
+  "name": "garuda-games-forum-api",
   "version": "1.0.0",
-  "description": "",
+  "description": "Clean Architecture + TDD Case Study: Building Authentication & Forum API with HapiJs.",
   "main": "index.js",
   "scripts": {
     "start": "node src/app.js",

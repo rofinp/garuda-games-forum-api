@@ -4,16 +4,16 @@ const UserRepository = require('../../../Domains/users/UserRepository');
 const PasswordHash = require('../../security/PasswordHash');
 const AddUserUseCase = require('../AddUserUseCase');
 
-describe('AddUserUseCase', () => {
+describe('The AddUserUseCase', () => {
   /**
    * Menguji apakah use case mampu mengoskestrasikan langkah demi langkah dengan benar.
    */
-  it('should orchestrating the add user action correctly', async () => {
+  it('should orchestrate the addUser action correctly', async () => {
     // Arrange
     const useCasePayload = {
-      username: 'dicoding',
+      username: 'rofinugraha',
       password: 'secret',
-      fullname: 'Dicoding Indonesia',
+      fullname: 'Rofi Nugraha',
     };
 
     const mockRegisteredUser = new RegisteredUser({
@@ -22,19 +22,19 @@ describe('AddUserUseCase', () => {
       fullname: useCasePayload.fullname,
     });
 
-    /** creating dependency of use case */
+    /** creating dependencies of use case */
     const mockUserRepository = new UserRepository();
     const mockPasswordHash = new PasswordHash();
 
-    /** mocking needed function */
-    mockUserRepository.verifyAvailableUsername = jest.fn()
+    /** mocking required function */
+    mockUserRepository.confirmUsernameAvailability = jest.fn()
       .mockImplementation(() => Promise.resolve());
     mockPasswordHash.hash = jest.fn()
       .mockImplementation(() => Promise.resolve('encrypted_password'));
     mockUserRepository.addUser = jest.fn()
       .mockImplementation(() => Promise.resolve(mockRegisteredUser));
 
-    /** creating use case instance */
+    /** creating the use case instance */
     const getUserUseCase = new AddUserUseCase({
       userRepository: mockUserRepository,
       passwordHash: mockPasswordHash,
@@ -50,9 +50,10 @@ describe('AddUserUseCase', () => {
       fullname: useCasePayload.fullname,
     }));
 
-    expect(mockUserRepository.verifyAvailableUsername).toBeCalledWith(useCasePayload.username);
-    expect(mockPasswordHash.hash).toBeCalledWith(useCasePayload.password);
-    expect(mockUserRepository.addUser).toBeCalledWith(new RegisterUser({
+    expect(mockUserRepository.confirmUsernameAvailability)
+      .toHaveBeenCalledWith(useCasePayload.username);
+    expect(mockPasswordHash.hash).toHaveBeenCalledWith(useCasePayload.password);
+    expect(mockUserRepository.addUser).toHaveBeenCalledWith(new RegisterUser({
       username: useCasePayload.username,
       password: 'encrypted_password',
       fullname: useCasePayload.fullname,

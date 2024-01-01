@@ -12,8 +12,8 @@ describe('AuthenticationRepository postgres', () => {
     await pool.end();
   });
 
-  describe('addToken function', () => {
-    it('should add token to database', async () => {
+  describe('the addToken function', () => {
+    it('should add a token to the database', async () => {
       // Arrange
       const authenticationRepository = new AuthenticationRepositoryPostgres(pool);
       const token = 'token';
@@ -28,8 +28,8 @@ describe('AuthenticationRepository postgres', () => {
     });
   });
 
-  describe('checkAvailabilityToken function', () => {
-    it('should throw InvariantError if token not available', async () => {
+  describe('the checkAvailabilityToken function', () => {
+    it('should throw an InvariantError if the token is not available', async () => {
       // Arrange
       const authenticationRepository = new AuthenticationRepositoryPostgres(pool);
       const token = 'token';
@@ -39,7 +39,7 @@ describe('AuthenticationRepository postgres', () => {
         .rejects.toThrow(InvariantError);
     });
 
-    it('should not throw InvariantError if token available', async () => {
+    it('should not throw an InvariantError if the token is available', async () => {
       // Arrange
       const authenticationRepository = new AuthenticationRepositoryPostgres(pool);
       const token = 'token';
@@ -51,8 +51,8 @@ describe('AuthenticationRepository postgres', () => {
     });
   });
 
-  describe('deleteToken', () => {
-    it('should delete token from database', async () => {
+  describe('the deleteToken function', () => {
+    it('should delete the token from the database', async () => {
       // Arrange
       const authenticationRepository = new AuthenticationRepositoryPostgres(pool);
       const token = 'token';

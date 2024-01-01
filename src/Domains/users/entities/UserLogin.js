@@ -1,12 +1,12 @@
 class UserLogin {
   constructor(payload) {
-    this._verifyPayload(payload);
+    this._verifyThePayload(payload);
 
     this.username = payload.username;
     this.password = payload.password;
   }
 
-  _verifyPayload(payload) {
+  _verifyThePayload(payload) {
     const { username, password } = payload;
 
     if (!username || !password) {

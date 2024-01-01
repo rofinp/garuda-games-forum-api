@@ -1,9 +1,9 @@
 class AuthenticationTokenManager {
-  async createRefreshToken(payload) {
+  async generateRefreshToken(payload) {
     throw new Error('AUTHENTICATION_TOKEN_MANAGER.METHOD_NOT_IMPLEMENTED');
   }
 
-  async createAccessToken(payload) {
+  async generateAccessToken(payload) {
     throw new Error('AUTHENTICATION_TOKEN_MANAGER.METHOD_NOT_IMPLEMENTED');
   }
 

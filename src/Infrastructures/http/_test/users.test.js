@@ -13,14 +13,14 @@ describe('/users endpoint', () => {
   });
 
   describe('when POST /users', () => {
-    it('should response 201 and persisted user', async () => {
+    it('should respond with a 201 status code and the persisted user', async () => {
       // Arrange
       const requestPayload = {
-        username: 'dicoding',
+        username: 'rofinugraha',
         password: 'secret',
-        fullname: 'Dicoding Indonesia',
+        fullname: 'Rofi Nugraha',
       };
-      // eslint-disable-next-line no-undef
+
       const server = await createServer(container);
 
       // Action
@@ -37,10 +37,10 @@ describe('/users endpoint', () => {
       expect(responseJson.data.addedUser).toBeDefined();
     });
 
-    it('should response 400 when request payload not contain needed property', async () => {
+    it('should respond with a 400 status code when the request payload does not contain required property', async () => {
       // Arrange
       const requestPayload = {
-        fullname: 'Dicoding Indonesia',
+        fullname: 'Rofi Nugraha',
         password: 'secret',
       };
       const server = await createServer(container);
@@ -59,12 +59,12 @@ describe('/users endpoint', () => {
       expect(responseJson.message).toEqual('tidak dapat membuat user baru karena properti yang dibutuhkan tidak ada');
     });
 
-    it('should response 400 when request payload not meet data type specification', async () => {
+    it('should respond with a 400 status code when the request payload does not meet data type specifications', async () => {
       // Arrange
       const requestPayload = {
-        username: 'dicoding',
+        username: 'rofinugraha',
         password: 'secret',
-        fullname: ['Dicoding Indonesia'],
+        fullname: ['Rofi Nugraha'],
       };
       const server = await createServer(container);
 
@@ -82,12 +82,12 @@ describe('/users endpoint', () => {
       expect(responseJson.message).toEqual('tidak dapat membuat user baru karena tipe data tidak sesuai');
     });
 
-    it('should response 400 when username more than 50 character', async () => {
+    it('should respond with a 400 status code when the username exceeds 50 characters', async () => {
       // Arrange
       const requestPayload = {
-        username: 'dicodingindonesiadicodingindonesiadicodingindonesiadicoding',
+        username: 'rofinugraharofinugraharofinugraharofinugraharofinugraharofinugraha',
         password: 'secret',
-        fullname: 'Dicoding Indonesia',
+        fullname: 'Rofi Nugraha',
       };
       const server = await createServer(container);
 
@@ -105,12 +105,12 @@ describe('/users endpoint', () => {
       expect(responseJson.message).toEqual('tidak dapat membuat user baru karena karakter username melebihi batas limit');
     });
 
-    it('should response 400 when username contain restricted character', async () => {
+    it('should respond with a 400 status code when the username contains a restricted character', async () => {
       // Arrange
       const requestPayload = {
-        username: 'dicoding indonesia',
+        username: 'rofi nugraha',
         password: 'secret',
-        fullname: 'Dicoding Indonesia',
+        fullname: 'Rofi Nugraha',
       };
       const server = await createServer(container);
 
@@ -128,12 +128,12 @@ describe('/users endpoint', () => {
       expect(responseJson.message).toEqual('tidak dapat membuat user baru karena username mengandung karakter terlarang');
     });
 
-    it('should response 400 when username unavailable', async () => {
+    it('should respond with a 400 status code when the username is unavailable', async () => {
       // Arrange
-      await UsersTableTestHelper.addUser({ username: 'dicoding' });
+      await UsersTableTestHelper.addUser({ username: 'rofinugraha' });
       const requestPayload = {
-        username: 'dicoding',
-        fullname: 'Dicoding Indonesia',
+        username: 'rofinugraha',
+        fullname: 'Rofi Nugraha',
         password: 'super_secret',
       };
       const server = await createServer(container);
