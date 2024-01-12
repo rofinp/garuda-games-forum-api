@@ -1,4 +1,5 @@
 const UsersTableTestHelper = require('../../../../tests/UsersTableTestHelper');
+const UserRepository = require('../../../Domains/users/UserRepository');
 const InvariantError = require('../../../Commons/exceptions/InvariantError');
 const RegisterUser = require('../../../Domains/users/entities/RegisterUser');
 const RegisteredUser = require('../../../Domains/users/entities/RegisteredUser');
@@ -6,6 +7,11 @@ const pool = require('../../database/postgres/pool');
 const UserRepositoryPostgres = require('../UserRepositoryPostgres');
 
 describe('UserRepositoryPostgres', () => {
+  it('should be instance of the ThreadRepository domain', async () => {
+    const userRepositoryPostgres = new UserRepositoryPostgres({}, {});
+    expect(userRepositoryPostgres).toBeInstanceOf(UserRepository);
+  });
+
   afterEach(async () => {
     await UsersTableTestHelper.cleanTable();
   });
@@ -75,12 +81,12 @@ describe('UserRepositoryPostgres', () => {
   });
 
   describe('getPasswordByUsername function', () => {
-    it('should throw an InvariantError when the username is not found', () => {
+    it('should throw an InvariantError when the username is not found', async () => {
       // Arrange
       const userRepositoryPostgres = new UserRepositoryPostgres(pool, {});
 
       // Action & Assert
-      return expect(userRepositoryPostgres.getPasswordByUsername('rofinugraha'))
+      await expect(userRepositoryPostgres.getPasswordByUsername('rofinugraha'))
         .rejects
         .toThrow(InvariantError);
     });

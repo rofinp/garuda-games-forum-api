@@ -1,5 +1,6 @@
 const Jwt = require('@hapi/jwt');
 const InvariantError = require('../../../Commons/exceptions/InvariantError');
+const AuthorizationError = require('../../../Commons/exceptions/AuthorizationError');
 const JwtTokenManager = require('../JwtTokenManager');
 const AuthenticationTokenManager = require('../../../Applications/security/AuthenticationTokenManager');
 
@@ -77,6 +78,30 @@ describe('JwtTokenManager', () => {
     });
   });
 
+  describe('verifyAccessToken function', () => {
+    it('should throw an InvariantError on failed access token verification', async () => {
+      // Arrange
+      const jwtTokenManager = new JwtTokenManager(Jwt.token);
+      const refreshToken = await jwtTokenManager.generateRefreshToken({ username: 'rofinugraha' });
+
+      // Action & Assert
+      await expect(jwtTokenManager.verifyAccessToken(refreshToken))
+        .rejects
+        .toThrow(InvariantError);
+    });
+
+    it('should not throw an InvariantError for a verified access token', async () => {
+      // Arrange
+      const jwtTokenManager = new JwtTokenManager(Jwt.token);
+      const refreshToken = await jwtTokenManager.generateAccessToken({ username: 'rofinugraha' });
+
+      // Action & Assert
+      await expect(jwtTokenManager.verifyAccessToken(refreshToken))
+        .resolves
+        .not.toThrow(InvariantError);
+    });
+  });
+
   describe('the decodePayload function', () => {
     it('should decode the payload correctly', async () => {
       // Arrange
@@ -88,6 +113,31 @@ describe('JwtTokenManager', () => {
 
       // Action & Assert
       expect(expectedUsername).toEqual('rofinugraha');
+    });
+  });
+
+  describe('the getAuthorizationToken function', () => {
+    it('should throw an AuthorizationError when not authorized', async () => {
+      // Arrange
+      const jwtTokenManager = new JwtTokenManager(Jwt.token);
+      const authorizationToken = '';
+
+      // Action & Assert
+      await expect(jwtTokenManager.getAuthorizationToken(authorizationToken))
+        .rejects
+        .toThrow(AuthorizationError);
+    });
+
+    it('should return an authorization token', async () => {
+      // Arrange
+      const jwtTokenManager = new JwtTokenManager(Jwt.token);
+      const authorizationToken = 'Bearer access_token';
+
+      // Action
+      const token = await jwtTokenManager.getAuthorizationToken(authorizationToken);
+
+      // Assert
+      expect(token).toEqual('access_token');
     });
   });
 });
