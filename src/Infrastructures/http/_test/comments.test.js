@@ -1,11 +1,12 @@
 const pool = require('../../database/postgres/pool');
 const ThreadsTableTestHelper = require('../../../../tests/ThreadsTableTestHelper');
 const UsersTableTestHelper = require('../../../../tests/UsersTableTestHelper');
+const CommentsTableTestHelper = require('../../../../tests/CommentsTableTestHelper');
 const AuthenticationsTableTestHelper = require('../../../../tests/AuthenticationsTableTestHelper');
 const container = require('../../container');
 const createServer = require('../createServer');
 
-describe('/threads endpoint', () => {
+describe('/threads/{threadId}/comments endpoint', () => {
   afterAll(async () => {
     await pool.end();
   });
@@ -14,16 +15,12 @@ describe('/threads endpoint', () => {
     await UsersTableTestHelper.cleanTable();
     await AuthenticationsTableTestHelper.cleanTable();
     await ThreadsTableTestHelper.cleanTable();
+    await CommentsTableTestHelper.cleanTable();
   });
 
-  describe('when POST /threads', () => {
-    it('should respond with a 201 status code and the persisted thread', async () => {
+  describe('when POST /threads/{threadId}/comments', () => {
+    it('should respond with a 201 status code and the persisted comment', async () => {
       // Arrange
-      const requestPayload = {
-        title: 'The Almonds',
-        body: 'I love you so much Almonds',
-      };
-
       const server = await createServer(container);
 
       /* add a user to the database */
@@ -49,11 +46,28 @@ describe('/threads endpoint', () => {
 
       const { accessToken } = (JSON.parse(responseAuthentication.payload)).data;
 
+      /* add a thread & get the thread's id */
+      const responseThread = await server.inject({
+        method: 'POST',
+        url: '/threads',
+        payload: {
+          title: 'The Almonds',
+          body: 'I love you so much Almonds',
+        },
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      const { id: threadId } = (JSON.parse(responseThread.payload)).data.addedThread;
+
       // Action
       const response = await server.inject({
         method: 'POST',
-        url: '/threads',
-        payload: requestPayload,
+        url: `/threads/${threadId}/comments`,
+        payload: {
+          content: 'What a comment',
+        },
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
@@ -61,17 +75,14 @@ describe('/threads endpoint', () => {
 
       // Assert
       const responseJson = JSON.parse(response.payload);
+      // console.log(responseJson);
       expect(response.statusCode).toEqual(201);
-      expect(responseJson.status).toEqual('success');
-      expect(responseJson.data.addedThread).toBeDefined();
+      expect(responseJson).toHaveProperty('status', 'success');
+      expect(responseJson.data).toHaveProperty('addedComment');
     });
 
-    it('should respond with a 400 status code when the thread payload does not contain required property', async () => {
+    it('should respond with a 400 status code when the comment payload does not contain required property', async () => {
       // Arrange
-      const requestPayload = {
-        body: 'I love you so much Almonds',
-      };
-
       const server = await createServer(container);
 
       /* add a user to the database */
@@ -97,10 +108,27 @@ describe('/threads endpoint', () => {
 
       const { accessToken } = (JSON.parse(responseAuthentication.payload)).data;
 
+      /* add a thread & get the thread's id */
+      const responseThread = await server.inject({
+        method: 'POST',
+        url: '/threads',
+        payload: {
+          title: 'The Almonds',
+          body: 'I love you so much Almonds',
+        },
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      const { id: threadId } = (JSON.parse(responseThread.payload)).data.addedThread;
+
+      const requestPayload = {};
+
       // Action
       const response = await server.inject({
         method: 'POST',
-        url: '/threads',
+        url: `/threads/${threadId}/comments`,
         payload: requestPayload,
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -110,17 +138,12 @@ describe('/threads endpoint', () => {
       // Assert
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toEqual(400);
-      expect(responseJson.status).toEqual('fail');
-      expect(responseJson.message).toEqual('tidak dapat membuat thread baru karena properti yang dibutuhkan tidak ada');
+      expect(responseJson).toHaveProperty('status', 'fail');
+      expect(responseJson.message).toEqual('tidak dapat membuat komentar baru karena properti yang dibutuhkan tidak ada');
     });
 
-    it('should respond with a 400 status code when the thread payload does not meet data type specifications', async () => {
+    it('should respond with a 400 status code when the comment payload does not meet data type specifications', async () => {
       // Arrange
-      const requestPayload = {
-        title: ['The Almonds'],
-        body: true,
-      };
-
       const server = await createServer(container);
 
       /* add a user to the database */
@@ -146,10 +169,29 @@ describe('/threads endpoint', () => {
 
       const { accessToken } = (JSON.parse(responseAuthentication.payload)).data;
 
+      /* add a thread & get the thread's id */
+      const responseThread = await server.inject({
+        method: 'POST',
+        url: '/threads',
+        payload: {
+          title: 'The Almonds',
+          body: 'I love you so much Almonds',
+        },
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      const { id: threadId } = (JSON.parse(responseThread.payload)).data.addedThread;
+
+      const requestPayload = {
+        content: [],
+      };
+
       // Action
       const response = await server.inject({
         method: 'POST',
-        url: '/threads',
+        url: `/threads/${threadId}/comments`,
         payload: requestPayload,
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -159,17 +201,14 @@ describe('/threads endpoint', () => {
       // Assert
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toEqual(400);
-      expect(responseJson.status).toEqual('fail');
-      expect(responseJson.message).toEqual('tidak dapat membuat thread baru karena tipe data tidak sesuai');
+      expect(responseJson).toHaveProperty('status', 'fail');
+      expect(responseJson.message).toEqual('tidak dapat membuat komentar baru karena tipe data tidak sesuai');
     });
+  });
 
-    it('should respond with a 400 status code when the thread title exceeds 150 characters', async () => {
+  describe('when DELETE /threads/{threadId}/comments/{commentId}', () => {
+    it('should respond with a 200 status code if the comment is successfully deleted', async () => {
       // Arrange
-      const requestPayload = {
-        title: 'The Almonds The Almonds The Almonds The Almonds The Almonds The Almonds The Almonds The Almonds The Almonds The Almonds The Almonds The Almonds The Almonds',
-        body: 'I love you so much Almonds',
-      };
-
       const server = await createServer(container);
 
       /* add a user to the database */
@@ -195,11 +234,39 @@ describe('/threads endpoint', () => {
 
       const { accessToken } = (JSON.parse(responseAuthentication.payload)).data;
 
-      // Action
-      const response = await server.inject({
+      /* add a thread & get the thread's id */
+      const responseThread = await server.inject({
         method: 'POST',
         url: '/threads',
-        payload: requestPayload,
+        payload: {
+          title: 'The Almonds',
+          body: 'I love you so much Almonds',
+        },
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      const { id: threadId } = (JSON.parse(responseThread.payload)).data.addedThread;
+
+      /* add a comment & get the comment's id */
+      const responseComment = await server.inject({
+        method: 'POST',
+        url: `/threads/${threadId}/comments`,
+        payload: {
+          content: 'What a comment',
+        },
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      const { id: commentId } = (JSON.parse(responseComment.payload)).data.addedComment;
+
+      // Action
+      const response = await server.inject({
+        method: 'PUT',
+        url: `/threads/${threadId}/comments/${commentId}`,
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
@@ -207,9 +274,7 @@ describe('/threads endpoint', () => {
 
       // Assert
       const responseJson = JSON.parse(response.payload);
-      expect(response.statusCode).toEqual(400);
-      expect(responseJson.status).toEqual('fail');
-      expect(responseJson.message).toEqual('tidak dapat membuat thread baru karena karakter title melebihi batas limit');
+      expect(responseJson).toHaveProperty('status', 'success');
     });
   });
 });

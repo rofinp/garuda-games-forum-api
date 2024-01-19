@@ -1,6 +1,6 @@
 const RegisterThread = require('../RegisterThread');
 
-describe('a NewThread entities', () => {
+describe('a RegisterThread entities', () => {
   it('should throw an error when the payload does not contain the required property', () => {
     // Arrange
     const payload = {

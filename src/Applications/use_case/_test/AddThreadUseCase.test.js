@@ -12,6 +12,10 @@ describe('AddThreadUseCase', () => {
       body: 'I love you so much Almond',
     };
 
+    const decodePayload = {
+      id: 'user-123',
+    };
+
     const mockRegisteredThread = new RegisteredThread({
       id: 'thread-123',
       title: useCasePayload.title,
@@ -19,7 +23,10 @@ describe('AddThreadUseCase', () => {
     });
 
     const accessToken = 'access_token';
-    const authorizationToken = `Bearer ${accessToken}`;
+
+    const useCaseHeaders = {
+      authorization: `Bearer ${accessToken}`,
+    };
 
     /** creating dependencies of use case */
     const mockThreadRepository = new ThreadRepository();
@@ -31,7 +38,7 @@ describe('AddThreadUseCase', () => {
     mockAuthenticationTokenManager.verifyAccessToken = jest.fn()
       .mockImplementation(() => Promise.resolve(accessToken));
     mockAuthenticationTokenManager.decodePayload = jest.fn()
-      .mockImplementation(() => Promise.resolve({ username: 'rofinugraha', id: mockRegisteredThread.owner }));
+      .mockImplementation(() => Promise.resolve({ id: decodePayload.id }));
     mockAuthenticationTokenManager.getAuthorizationToken = jest.fn()
       .mockImplementation(() => Promise.resolve(accessToken));
 
@@ -42,13 +49,11 @@ describe('AddThreadUseCase', () => {
     });
 
     // Action
-    const registeredThread = await getThreadUseCase.execute(useCasePayload, authorizationToken);
+    const registeredThread = await getThreadUseCase.execute(useCasePayload, useCaseHeaders);
 
     // Assert
     expect(registeredThread).toStrictEqual(new RegisteredThread({
-      id: mockRegisteredThread.id,
-      title: mockRegisteredThread.title,
-      owner: mockRegisteredThread.owner,
+      ...mockRegisteredThread,
     }));
 
     expect(mockAuthenticationTokenManager.decodePayload).toHaveBeenCalledWith(accessToken);
@@ -57,10 +62,10 @@ describe('AddThreadUseCase', () => {
     expect(mockThreadRepository.addThread).toHaveBeenCalledWith(new RegisterThread({
       title: useCasePayload.title,
       body: useCasePayload.body,
-      owner: mockRegisteredThread.owner,
+      owner: decodePayload.id,
     }));
 
     expect(mockAuthenticationTokenManager.getAuthorizationToken)
-      .toHaveBeenCalledWith(authorizationToken);
+      .toHaveBeenCalledWith(useCaseHeaders.authorization);
   });
 });

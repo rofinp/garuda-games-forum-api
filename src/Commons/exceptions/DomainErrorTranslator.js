@@ -24,6 +24,9 @@ DomainErrorTranslator._directories = {
   'REGISTER_THREAD.DOES_NOT_CONTAIN_REQUIRED_PROPERTY': new InvariantError('tidak dapat membuat thread baru karena properti yang dibutuhkan tidak ada'),
   'REGISTER_THREAD.DOES_NOT_MEET_DATA_TYPE_SPECIFICATION': new InvariantError('tidak dapat membuat thread baru karena tipe data tidak sesuai'),
   'REGISTER_THREAD.TITLE_LIMIT_CHAR': new InvariantError('tidak dapat membuat thread baru karena karakter title melebihi batas limit'),
+
+  'REGISTER_COMMENT.DOES_NOT_CONTAIN_REQUIRED_PROPERTY': new InvariantError('tidak dapat membuat komentar baru karena properti yang dibutuhkan tidak ada'),
+  'REGISTER_COMMENT.DOES_NOT_MEET_DATA_TYPE_SPECIFICATION': new InvariantError('tidak dapat membuat komentar baru karena tipe data tidak sesuai'),
 };
 
 module.exports = DomainErrorTranslator;

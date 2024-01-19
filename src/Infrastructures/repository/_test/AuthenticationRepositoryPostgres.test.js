@@ -1,9 +1,15 @@
 const InvariantError = require('../../../Commons/exceptions/InvariantError');
 const AuthenticationsTableTestHelper = require('../../../../tests/AuthenticationsTableTestHelper');
+const AuthenticationRepository = require('../../../Domains/authentications/AuthenticationRepository');
 const pool = require('../../database/postgres/pool');
 const AuthenticationRepositoryPostgres = require('../AuthenticationRepositoryPostgres');
 
-describe('AuthenticationRepository postgres', () => {
+describe('AuthenticationRepositoryPostgres', () => {
+  it('should be instance of the AuthenticationRepository domain', async () => {
+    const authenticationRepositoryPostgres = new AuthenticationRepositoryPostgres({});
+    expect(authenticationRepositoryPostgres).toBeInstanceOf(AuthenticationRepository);
+  });
+
   afterEach(async () => {
     await AuthenticationsTableTestHelper.cleanTable();
   });
@@ -12,7 +18,7 @@ describe('AuthenticationRepository postgres', () => {
     await pool.end();
   });
 
-  describe('the addToken function', () => {
+  describe('addToken function', () => {
     it('should add a token to the database', async () => {
       // Arrange
       const authenticationRepository = new AuthenticationRepositoryPostgres(pool);
@@ -28,7 +34,7 @@ describe('AuthenticationRepository postgres', () => {
     });
   });
 
-  describe('the checkAvailabilityToken function', () => {
+  describe('checkAvailabilityToken function', () => {
     it('should throw an InvariantError if the token is not available', async () => {
       // Arrange
       const authenticationRepository = new AuthenticationRepositoryPostgres(pool);
@@ -39,7 +45,7 @@ describe('AuthenticationRepository postgres', () => {
         .rejects.toThrow(InvariantError);
     });
 
-    it('should not throw an InvariantError if the token is available', async () => {
+    it('should not throw an InvariantError when the token is available', async () => {
       // Arrange
       const authenticationRepository = new AuthenticationRepositoryPostgres(pool);
       const token = 'token';
@@ -51,7 +57,7 @@ describe('AuthenticationRepository postgres', () => {
     });
   });
 
-  describe('the deleteToken function', () => {
+  describe('deleteToken function', () => {
     it('should delete the token from the database', async () => {
       // Arrange
       const authenticationRepository = new AuthenticationRepositoryPostgres(pool);
