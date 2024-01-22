@@ -274,6 +274,7 @@ describe('/threads/{threadId}/comments endpoint', () => {
 
       // Assert
       const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(200);
       expect(responseJson).toHaveProperty('status', 'success');
     });
   });

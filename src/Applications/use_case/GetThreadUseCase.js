@@ -16,7 +16,6 @@ class GetThreadUseCase {
       date,
       content,
     }));
-
     thread.comments = formattedComments;
     return thread;
   }
