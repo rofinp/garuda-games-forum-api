@@ -31,7 +31,7 @@ describe('CommentRepositoryPostgres', () => {
   afterEach(async () => {
     await ThreadsTableTestHelper.cleanTable();
     await UsersTableTestHelper.cleanTable();
-    await CommentRepositoryTestHelper.cleanTable();
+    await CommentsTableTestHelper.cleanTable();
   });
 
   afterAll(async () => {
@@ -45,7 +45,6 @@ describe('CommentRepositoryPostgres', () => {
         threadId: 'thread-123',
         content: 'What a comment',
         owner: 'user-123',
-        username: 'rofinugraha',
       });
 
       const fakeIdGenerator = () => '123'; // stub
@@ -86,6 +85,7 @@ describe('CommentRepositoryPostgres', () => {
 
       const firstComment = {
         id: 'comment-123',
+        threadId: 'thread-123',
         content: 'What a comment 1',
         owner: 'user-123',
         date: '2021-08-08T07:19:09.775Z',
@@ -94,6 +94,7 @@ describe('CommentRepositoryPostgres', () => {
 
       const secondComment = {
         id: 'comment-321',
+        threadId: 'thread-123',
         content: 'What a comment 2',
         owner: 'user-321',
         date: '2021-09-09T07:19:09.775Z',
@@ -107,14 +108,11 @@ describe('CommentRepositoryPostgres', () => {
       // Action
       const allThreadComments = await commentRepositoryPostgres.getCommentsByThreadId('thread-123');
 
-      /* Hapus properti 'owner' dari setiap objek dalam array */
-      const formattedComments = allThreadComments.map(({ owner, ...comment }) => comment);
-
       // Assert
-      expect(formattedComments).toHaveLength(2);
-      expect(formattedComments).toStrictEqual([
-        { ...formattedComments[0], username: 'rofinugraha' }, // firstComment
-        { ...formattedComments[1], username: 'ashleygraham' }, // secondComment
+      expect(allThreadComments).toHaveLength(2);
+      expect(allThreadComments).toStrictEqual([
+        { ...firstComment, username: 'rofinugraha' }, // firstComment
+        { ...secondComment, username: 'ashleygraham' }, // secondComment
       ]);
     });
   });
@@ -146,7 +144,8 @@ describe('CommentRepositoryPostgres', () => {
       const getComment = await CommentsTableTestHelper.findCommentById(comment.id);
 
       // Assert
-      expect(getComment.is_deleted).toEqual(true);
+      expect(getComment).toHaveProperty('is_deleted', true);
+      expect(getComment).toHaveProperty('content', '**komentar telah dihapus**');
     });
   });
 
@@ -164,15 +163,15 @@ describe('CommentRepositoryPostgres', () => {
     it('should not throw a NotFoundError when the comment exists', async () => {
       // Arrange
       const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
+
       await CommentsTableTestHelper.addComment({
         id: 'comment-123',
         isDeleted: false,
       });
 
-      const getComment = await CommentsTableTestHelper.findCommentById('comment-123');
+      await CommentsTableTestHelper.findCommentById('comment-123');
 
       // Action & Assert
-      expect(getComment).toHaveProperty('is_deleted', false);
       await expect(commentRepositoryPostgres.verifyCommentExistance({ threadId: 'thread-123', commentId: 'comment-123' }))
         .resolves.not.toThrow(NotFoundError);
     });
@@ -201,13 +200,13 @@ describe('CommentRepositoryPostgres', () => {
     it('should throw an AuthorizationError when the user is unauthorized', async () => {
       // Arrange
       const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
-      await CommentsTableTestHelper.addComment({
-        id: 'comment-123',
-        threadId: 'thread-123',
-      });
+      await CommentsTableTestHelper.addComment({});
 
       // Action & Assert
-      await expect(commentRepositoryPostgres.verifyCommentAuthorization({ owner: '' || undefined, commentId: 'comment-123' }))
+      await expect(commentRepositoryPostgres.verifyCommentAuthorization({
+        owner: '' || undefined || 'user-313',
+        commentId: 'comment-123',
+      }))
         .rejects
         .toThrow(AuthorizationError);
     });
@@ -215,11 +214,8 @@ describe('CommentRepositoryPostgres', () => {
     it('should not throw an AuthorizationError when the user is authorized', async () => {
       // Arrange
       const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
-      await CommentsTableTestHelper.addComment({
-        id: 'comment-123',
-        threadId: 'thread-123',
-        owner: 'user-123',
-      });
+
+      await CommentsTableTestHelper.addComment({});
 
       // Action & Assert
       await expect(commentRepositoryPostgres.verifyCommentAuthorization({ owner: 'user-123', commentId: 'comment-123' }))

@@ -36,14 +36,15 @@ class CommentRepositoryPostgres extends CommentRepository {
       values: [threadId],
     };
 
-    /* eslint-disable camelcase */
     const result = await this._pool.query(query);
+
+    /* eslint-disable camelcase */
     const formattedComments = result.rows.map(({
       is_deleted, thread_id, ...rest
     }) => ({
       ...rest,
-      isDeleted: is_deleted,
       threadId: thread_id,
+      isDeleted: is_deleted,
     }));
 
     return formattedComments;
@@ -53,8 +54,7 @@ class CommentRepositoryPostgres extends CommentRepository {
     const query = {
       text: `UPDATE comments
              SET is_deleted = true, content = '**komentar telah dihapus**'
-             WHERE id = $1
-             RETURNING id`,
+             WHERE id = $1`,
       values: [commentId],
     };
 
@@ -63,13 +63,11 @@ class CommentRepositoryPostgres extends CommentRepository {
     if (!result.rowCount) {
       throw new NotFoundError('komentar tidak ditemukan atau sudah dihapus');
     }
-
-    return result.rows[0];
   }
 
   async verifyCommentExistance({ threadId, commentId }) {
     const query = {
-      text: `SELECT comments.*, threads.id AS thread_id
+      text: `SELECT comments.id, threads.id AS thread_id, comments.is_deleted
              FROM comments
              INNER JOIN threads ON comments.thread_id = threads.id
              WHERE threads.id = $1 AND comments.id = $2`,
@@ -85,17 +83,18 @@ class CommentRepositoryPostgres extends CommentRepository {
 
   async verifyCommentAuthorization({ owner, commentId }) {
     const query = {
-      text: `SELECT comments.*, users.id AS owner
+      text: `SELECT comments.id, users.id AS owner
              FROM comments
              INNER JOIN users ON comments.owner = users.id
-             WHERE users.id = $1 AND comments.id = $2`,
+             WHERE users.id = $1 
+             AND comments.id = $2`,
       values: [owner, commentId],
     };
 
     const result = await this._pool.query(query);
 
     if (!result.rowCount) {
-      throw new AuthorizationError('tidak dapat mengakses sumber ini harap login terlebih dahulu');
+      throw new AuthorizationError('tidak dapat mengakses sumber ini, harap login terlebih dahulu');
     }
   }
 }

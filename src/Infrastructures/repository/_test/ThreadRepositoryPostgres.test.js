@@ -73,6 +73,7 @@ describe('ThreadRepositoryPostgres', () => {
         id: 'user-123',
         username: 'rofinugraha',
       });
+
       await ThreadsTableTestHelper.addThread({
         id: 'thread-123',
         title: 'untitled thread',

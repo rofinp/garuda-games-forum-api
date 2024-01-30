@@ -75,10 +75,10 @@ describe('/threads/{threadId}/comments endpoint', () => {
 
       // Assert
       const responseJson = JSON.parse(response.payload);
-      // console.log(responseJson);
       expect(response.statusCode).toEqual(201);
       expect(responseJson).toHaveProperty('status', 'success');
       expect(responseJson.data).toHaveProperty('addedComment');
+      expect(responseJson.data.addedComment).toBeDefined();
     });
 
     it('should respond with a 400 status code when the comment payload does not contain required property', async () => {

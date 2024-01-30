@@ -32,9 +32,7 @@ describe('a RegisterComment entities', () => {
     };
 
     // Action
-    const {
-      threadId, content, owner,
-    } = new RegisterComment(payload);
+    const { threadId, content, owner } = new RegisterComment(payload);
 
     // Assert
     expect(threadId).toEqual(payload.threadId);

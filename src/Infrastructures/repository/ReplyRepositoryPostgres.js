@@ -1,0 +1,102 @@
+const ReplyRepository = require('../../Domains/replies/ReplyRepository');
+const RegisteredReply = require('../../Domains/replies/entities/RegisteredReply');
+const NotFoundError = require('../../Commons/exceptions/NotFoundError');
+const AuthorizationError = require('../../Commons/exceptions/AuthorizationError');
+
+class ReplyRepositoryPostgres extends ReplyRepository {
+  constructor(pool, idGenerator) {
+    super();
+    this._pool = pool;
+    this._idGenerator = idGenerator;
+  }
+
+  async addReply(registerReply) {
+    const { commentId, content, owner } = registerReply;
+    const id = `reply-${this._idGenerator()}`;
+    const date = new Date().toISOString();
+    const query = {
+      text: `INSERT INTO replies (id, comment_id, content, owner, date)
+             VALUES ($1, $2, $3, $4, $5)
+             RETURNING id, content, owner`,
+      values: [id, commentId, content, owner, date],
+    };
+    const result = await this._pool.query(query);
+    return new RegisteredReply({ ...result.rows[0] });
+  }
+
+  async deleteReply(replyId) {
+    const query = {
+      text: `UPDATE replies
+             SET is_deleted = true, content = '**balasan telah dihapus**'
+             WHERE id = $1`,
+      values: [replyId],
+    };
+
+    const result = await this._pool.query(query);
+    if (!result.rowCount) {
+      throw new NotFoundError('balasan tidak ditemukan atau sudah dihapus');
+    }
+  }
+
+  async getRepliesByCommentId(commentId) {
+    const query = {
+      text: `SELECT replies.*, users.username
+             FROM replies
+             INNER JOIN users ON replies.owner = users.id
+             WHERE replies.comment_id = $1
+             ORDER BY replies.date ASC`,
+      values: [commentId],
+    };
+
+    const result = await this._pool.query(query);
+
+    /* eslint-disable camelcase */
+    const formattedReplies = result.rows.map(({
+      is_deleted, comment_id, ...rest
+    }) => ({
+      ...rest,
+      commentId: comment_id,
+      isDeleted: is_deleted,
+    }));
+
+    return formattedReplies;
+  }
+
+  async getReplyByIds({ threadId, commentId, replyId }) {
+    const query = {
+      text: `SELECT replies.id, comments.id AS comment_id, replies.content, replies.date, users.username, replies.is_deleted 
+      FROM replies
+      INNER JOIN users ON replies.owner = users.id
+      INNER JOIN comments ON replies.comment_id = comments.id
+      WHERE comments.thread_id = $1
+      AND replies.comment_id = $2 
+      AND replies.id = $3`,
+      values: [threadId, commentId, replyId],
+    };
+
+    const result = await this._pool.query(query);
+
+    if (!result.rowCount || result.rows[0].is_deleted) {
+      throw new NotFoundError('balasan tidak ditemukan atau sudah dihapus');
+    }
+  }
+
+  async verifyReplyAuthorization({ owner, replyId }) {
+    const query = {
+      text: `SELECT replies.id, users.id AS owner
+             FROM replies
+             INNER JOIN users ON replies.owner = users.id
+             WHERE users.id = $1
+             AND replies.id = $2`,
+      values: [owner, replyId],
+    };
+
+    const result = await this._pool.query(query);
+
+    if (!result.rowCount) {
+      throw new AuthorizationError('tidak dapat mengakses sumber ini, harap login terlebih dahulu');
+    }
+  }
+}
+
+module.exports = ReplyRepositoryPostgres;
