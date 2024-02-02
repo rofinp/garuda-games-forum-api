@@ -5,9 +5,9 @@ const routes = (handler) => ([
     handler: (request, h) => handler.postCommentHandler(request, h),
   },
   {
-    method: 'PUT',
+    method: 'DELETE',
     path: '/threads/{threadId}/comments/{commentId}',
-    handler: (request, h) => handler.deleteCommentHandler(request, h),
+    handler: (request) => handler.deleteCommentHandler(request),
   },
 ]);
 

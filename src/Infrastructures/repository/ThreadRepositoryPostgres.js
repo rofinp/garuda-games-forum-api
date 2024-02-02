@@ -40,27 +40,6 @@ class ThreadRepositoryPostgres extends ThreadRepository {
     }
     return result.rows[0];
   }
-
-  // async getRepliesByThreadId(id) {
-  //   const query = {
-  //     text: `SELECT replies.id, comments.id AS comment_id, replies.content, users.username, replies.date, replies.is_deleted
-  //            FROM replies
-  //            INNER JOIN users ON replies.owner = users.id
-  //            INNER JOIN comments ON replies.comment_id = comments.id
-  //            WHERE comments.thread_id = $1
-  //            ORDER BY replies.date ASC`,
-  //     values: [id],
-  //   };
-  //   const result = await this._pool.query(query);
-
-  //   /* eslint-disable camelcase */
-  //   const formattedReplies = result.rows.map(({ is_deleted, comment_id, ...rest }) => ({
-  //     ...rest,
-  //     commentId: comment_id,
-  //     isDeleted: is_deleted,
-  //   }));
-  //   return formattedReplies;
-  // }
 }
 
 module.exports = ThreadRepositoryPostgres;

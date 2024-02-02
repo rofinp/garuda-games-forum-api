@@ -200,7 +200,12 @@ describe('CommentRepositoryPostgres', () => {
     it('should throw an AuthorizationError when the user is unauthorized', async () => {
       // Arrange
       const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
-      await CommentsTableTestHelper.addComment({});
+
+      await CommentsTableTestHelper.addComment({
+        id: 'comment-123',
+        threadId: 'thread-123',
+        owner: 'user-123',
+      });
 
       // Action & Assert
       await expect(commentRepositoryPostgres.verifyCommentAuthorization({
@@ -215,9 +220,17 @@ describe('CommentRepositoryPostgres', () => {
       // Arrange
       const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
 
-      await CommentsTableTestHelper.addComment({});
+      await CommentsTableTestHelper.addComment({
+        id: 'comment-123',
+        threadId: 'thread-123',
+        owner: 'user-123',
+      });
+
+      const getComment = await CommentsTableTestHelper.findCommentById('comment-123');
 
       // Action & Assert
+      expect(getComment).toHaveProperty('owner', 'user-123');
+      expect(getComment).toHaveProperty('id', 'comment-123');
       await expect(commentRepositoryPostgres.verifyCommentAuthorization({ owner: 'user-123', commentId: 'comment-123' }))
         .resolves.not
         .toThrow(AuthorizationError);

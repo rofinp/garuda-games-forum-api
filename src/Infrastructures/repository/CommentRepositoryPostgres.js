@@ -2,6 +2,7 @@ const CommentRepository = require('../../Domains/comments/CommentRepository');
 const RegisteredComment = require('../../Domains/comments/entities/RegisteredComment');
 const NotFoundError = require('../../Commons/exceptions/NotFoundError');
 const AuthorizationError = require('../../Commons/exceptions/AuthorizationError');
+const AuthenticationError = require('../../Commons/exceptions/AuthenticationError');
 
 class CommentRepositoryPostgres extends CommentRepository {
   constructor(pool, idGenerator) {
@@ -86,7 +87,7 @@ class CommentRepositoryPostgres extends CommentRepository {
       text: `SELECT comments.id, users.id AS owner
              FROM comments
              INNER JOIN users ON comments.owner = users.id
-             WHERE users.id = $1 
+             WHERE users.id = $1
              AND comments.id = $2`,
       values: [owner, commentId],
     };

@@ -1,6 +1,6 @@
 const AuthenticationTokenManager = require('../../Applications/security/AuthenticationTokenManager');
 const InvariantError = require('../../Commons/exceptions/InvariantError');
-const AuthorizationError = require('../../Commons/exceptions/AuthorizationError');
+const AuthenticationError = require('../../Commons/exceptions/AuthenticationError');
 
 class JwtTokenManager extends AuthenticationTokenManager {
   constructor(jwt) {
@@ -41,7 +41,7 @@ class JwtTokenManager extends AuthenticationTokenManager {
 
   async getAuthorizationToken(token) {
     if (!token) {
-      throw new AuthorizationError('you are not authorized to access this resource');
+      throw new AuthenticationError('Missing authentication');
     }
 
     return token.replace(/^Bearer\s+/, '');

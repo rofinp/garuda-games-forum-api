@@ -18,13 +18,13 @@ class RepliesHandler {
     return response;
   }
 
-  async deleteReplyHandler(request, h) {
+  async deleteReplyHandler(request) {
     const deleteReplyUseCase = this._container.getInstance(DeleteReplyUseCase.name);
     await deleteReplyUseCase.execute(request.params, request.headers);
 
-    return h.response({
+    return {
       status: 'success',
-    });
+    };
   }
 }
 

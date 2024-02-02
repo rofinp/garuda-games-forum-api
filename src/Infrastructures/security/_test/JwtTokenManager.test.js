@@ -1,6 +1,6 @@
 const Jwt = require('@hapi/jwt');
 const InvariantError = require('../../../Commons/exceptions/InvariantError');
-const AuthorizationError = require('../../../Commons/exceptions/AuthorizationError');
+const AuthenticationError = require('../../../Commons/exceptions/AuthenticationError');
 const JwtTokenManager = require('../JwtTokenManager');
 const AuthenticationTokenManager = require('../../../Applications/security/AuthenticationTokenManager');
 
@@ -125,7 +125,7 @@ describe('JwtTokenManager', () => {
       // Action & Assert
       await expect(jwtTokenManager.getAuthorizationToken(authorizationToken))
         .rejects
-        .toThrow(AuthorizationError);
+        .toThrow(AuthenticationError);
     });
 
     it('should return an authorization token', async () => {

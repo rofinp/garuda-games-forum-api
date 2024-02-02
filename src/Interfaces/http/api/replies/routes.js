@@ -7,7 +7,7 @@ const routes = (handler) => ([
   {
     method: 'DELETE',
     path: '/threads/{threadId}/comments/{commentId}/replies/{replyId}',
-    handler: (request, h) => handler.deleteReplyHandler(request, h),
+    handler: (request) => handler.deleteReplyHandler(request),
   },
 ]);
 

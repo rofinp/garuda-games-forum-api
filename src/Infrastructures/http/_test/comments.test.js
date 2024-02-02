@@ -222,8 +222,18 @@ describe('/threads/{threadId}/comments endpoint', () => {
         },
       });
 
+      await server.inject({
+        method: 'POST',
+        url: '/users',
+        payload: {
+          username: 'ashleygraham',
+          password: 'supersecret',
+          fullname: 'Ashley Graham',
+        },
+      });
+
       /* add an authentication (login) & get the user's access token */
-      const responseAuthentication = await server.inject({
+      const responseAuthenticationRofi = await server.inject({
         method: 'POST',
         url: '/authentications',
         payload: {
@@ -232,7 +242,22 @@ describe('/threads/{threadId}/comments endpoint', () => {
         },
       });
 
-      const { accessToken } = (JSON.parse(responseAuthentication.payload)).data;
+      const {
+        accessToken: rofiAccessToken,
+      } = (JSON.parse(responseAuthenticationRofi.payload)).data;
+
+      const responseAuthenticationAshley = await server.inject({
+        method: 'POST',
+        url: '/authentications',
+        payload: {
+          username: 'ashleygraham',
+          password: 'supersecret',
+        },
+      });
+
+      const {
+        accessToken: ashleyAccessToken,
+      } = (JSON.parse(responseAuthenticationAshley.payload)).data;
 
       /* add a thread & get the thread's id */
       const responseThread = await server.inject({
@@ -243,7 +268,7 @@ describe('/threads/{threadId}/comments endpoint', () => {
           body: 'I love you so much Almonds',
         },
         headers: {
-          Authorization: `Bearer ${accessToken}`,
+          Authorization: `Bearer ${rofiAccessToken}`,
         },
       });
 
@@ -257,7 +282,7 @@ describe('/threads/{threadId}/comments endpoint', () => {
           content: 'What a comment',
         },
         headers: {
-          Authorization: `Bearer ${accessToken}`,
+          Authorization: `Bearer ${ashleyAccessToken}`,
         },
       });
 
@@ -265,10 +290,10 @@ describe('/threads/{threadId}/comments endpoint', () => {
 
       // Action
       const response = await server.inject({
-        method: 'PUT',
+        method: 'DELETE',
         url: `/threads/${threadId}/comments/${commentId}`,
         headers: {
-          Authorization: `Bearer ${accessToken}`,
+          Authorization: `Bearer ${ashleyAccessToken}`,
         },
       });
 
@@ -276,6 +301,102 @@ describe('/threads/{threadId}/comments endpoint', () => {
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toEqual(200);
       expect(responseJson).toHaveProperty('status', 'success');
+    });
+
+    it('should respond with a 403 status code if someone other than the owner tries to delete the comment', async () => {
+      // Arrange
+      const server = await createServer(container);
+
+      /* add a user to the database */
+      await server.inject({
+        method: 'POST',
+        url: '/users',
+        payload: {
+          username: 'rofinugraha',
+          password: 'supersecret',
+          fullname: 'Rofi Nugraha',
+        },
+      });
+
+      await server.inject({
+        method: 'POST',
+        url: '/users',
+        payload: {
+          username: 'ashleygraham',
+          password: 'supersecret',
+          fullname: 'Ashley Graham',
+        },
+      });
+
+      /* add an authentication (login) & get the user's access token */
+      const responseAuthenticationRofi = await server.inject({
+        method: 'POST',
+        url: '/authentications',
+        payload: {
+          username: 'rofinugraha',
+          password: 'supersecret',
+        },
+      });
+
+      const {
+        accessToken: rofiAccessToken,
+      } = (JSON.parse(responseAuthenticationRofi.payload)).data;
+
+      const responseAuthenticationAshley = await server.inject({
+        method: 'POST',
+        url: '/authentications',
+        payload: {
+          username: 'ashleygraham',
+          password: 'supersecret',
+        },
+      });
+
+      const {
+        accessToken: ashleyAccessToken,
+      } = (JSON.parse(responseAuthenticationAshley.payload)).data;
+
+      /* add a thread & get the thread's id */
+      const responseThread = await server.inject({
+        method: 'POST',
+        url: '/threads',
+        payload: {
+          title: 'The Almonds',
+          body: 'I love you so much Almonds',
+        },
+        headers: {
+          Authorization: `Bearer ${rofiAccessToken}`,
+        },
+      });
+
+      const { id: threadId } = (JSON.parse(responseThread.payload)).data.addedThread;
+
+      /* add a comment & get the comment's id */
+      const responseComment = await server.inject({
+        method: 'POST',
+        url: `/threads/${threadId}/comments`,
+        payload: {
+          content: 'What a comment',
+        },
+        headers: {
+          Authorization: `Bearer ${ashleyAccessToken}`,
+        },
+      });
+
+      const { id: commentId } = (JSON.parse(responseComment.payload)).data.addedComment;
+
+      // Action
+      const response = await server.inject({
+        method: 'DELETE',
+        url: `/threads/${threadId}/comments/${commentId}`,
+        headers: {
+          Authorization: `Bearer ${rofiAccessToken}`,
+        },
+      });
+
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response).toHaveProperty('statusCode', 403);
+      expect(responseJson).toHaveProperty('status', 'fail');
     });
   });
 });
