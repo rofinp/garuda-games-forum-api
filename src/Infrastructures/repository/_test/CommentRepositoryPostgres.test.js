@@ -131,6 +131,7 @@ describe('CommentRepositoryPostgres', () => {
     it('should soft delete the comment if it exists or is found', async () => {
       // Arrange
       const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
+
       const comment = {
         id: 'comment-123',
         threadId: 'thread-123',

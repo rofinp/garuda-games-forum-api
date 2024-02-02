@@ -1,4 +1,5 @@
 const AddReplyUseCase = require('../../../../Applications/use_case/AddReplyUseCase');
+const DeleteReplyUseCase = require('../../../../Applications/use_case/DeleteReplyUseCase');
 
 class RepliesHandler {
   constructor(container) {
@@ -15,6 +16,15 @@ class RepliesHandler {
     });
     response.code(201);
     return response;
+  }
+
+  async deleteReplyHandler(request, h) {
+    const deleteReplyUseCase = this._container.getInstance(DeleteReplyUseCase.name);
+    await deleteReplyUseCase.execute(request.params, request.headers);
+
+    return h.response({
+      status: 'success',
+    });
   }
 }
 
