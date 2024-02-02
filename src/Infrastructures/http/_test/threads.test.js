@@ -1,6 +1,7 @@
 const pool = require('../../database/postgres/pool');
 const ThreadsTableTestHelper = require('../../../../tests/ThreadsTableTestHelper');
 const UsersTableTestHelper = require('../../../../tests/UsersTableTestHelper');
+const RepliesTableTestHelper = require('../../../../tests/RepliesTableTestHelper');
 const AuthenticationsTableTestHelper = require('../../../../tests/AuthenticationsTableTestHelper');
 const container = require('../../container');
 const createServer = require('../createServer');
@@ -14,6 +15,7 @@ describe('/threads endpoint', () => {
     await UsersTableTestHelper.cleanTable();
     await AuthenticationsTableTestHelper.cleanTable();
     await ThreadsTableTestHelper.cleanTable();
+    await RepliesTableTestHelper.cleanTable();
   });
 
   describe('when POST /threads', () => {
@@ -216,11 +218,6 @@ describe('/threads endpoint', () => {
   describe('when GET /threads/{threadId}', () => {
     it('should respond with a 200 status code and the detail thread', async () => {
       // Arrange
-      const requestPayload = {
-        title: 'The Almonds',
-        body: 'I love you so much Almonds',
-      };
-
       const server = await createServer(container);
 
       /* add a user to the database */
@@ -234,8 +231,18 @@ describe('/threads endpoint', () => {
         },
       });
 
+      await server.inject({
+        method: 'POST',
+        url: '/users',
+        payload: {
+          username: 'ashleygraham',
+          password: 'supersecret',
+          fullname: 'Ashley Graham',
+        },
+      });
+
       /* add an authentication (login) & get the user's access token */
-      const responseAuthentication = await server.inject({
+      const responseAuthenticationRofi = await server.inject({
         method: 'POST',
         url: '/authentications',
         payload: {
@@ -244,51 +251,98 @@ describe('/threads endpoint', () => {
         },
       });
 
-      const { accessToken } = (JSON.parse(responseAuthentication.payload)).data;
+      const {
+        accessToken:
+        rofiAccessToken,
+      } = (JSON.parse(responseAuthenticationRofi.payload)).data;
+
+      const responseAuthenticationAshley = await server.inject({
+        method: 'POST',
+        url: '/authentications',
+        payload: {
+          username: 'ashleygraham',
+          password: 'supersecret',
+        },
+      });
+
+      const {
+        accessToken:
+        ashleyAccessToken,
+      } = (JSON.parse(responseAuthenticationAshley.payload)).data;
 
       /* add a thread & get the thread's id */
       const responseThread = await server.inject({
         method: 'POST',
         url: '/threads',
-        payload: requestPayload,
+        payload: {
+          title: 'The Almonds',
+          body: 'I love you so much Almonds',
+        },
         headers: {
-          Authorization: `Bearer ${accessToken}`,
+          Authorization: `Bearer ${rofiAccessToken}`,
         },
       });
 
       const { id: threadId } = (JSON.parse(responseThread.payload)).data.addedThread;
 
       /* add a comment to the thread */
-      await server.inject({
+      const responseComment1 = await server.inject({
         method: 'POST',
         url: `/threads/${threadId}/comments`,
         payload: {
           content: 'What a comment',
         },
         headers: {
-          Authorization: `Bearer ${accessToken}`,
+          Authorization: `Bearer ${ashleyAccessToken}`,
         },
       });
 
-      const responseComment = await server.inject({
+      const { id: commentId1 } = (JSON.parse(responseComment1.payload)).data.addedComment;
+
+      const responseComment2 = await server.inject({
         method: 'POST',
         url: `/threads/${threadId}/comments`,
         payload: {
           content: 'What a comment, buddy',
         },
         headers: {
-          Authorization: `Bearer ${accessToken}`,
+          Authorization: `Bearer ${rofiAccessToken}`,
         },
       });
 
-      const { id: commentId } = (JSON.parse(responseComment.payload)).data.addedComment;
+      const { id: commentId2 } = (JSON.parse(responseComment2.payload)).data.addedComment;
 
       /* delete a comment from the database */
       await server.inject({
         method: 'PUT',
-        url: `/threads/${threadId}/comments/${commentId}`,
+        url: `/threads/${threadId}/comments/${commentId2}`,
         headers: {
-          Authorization: `Bearer ${accessToken}`,
+          Authorization: `Bearer ${rofiAccessToken}`,
+        },
+      });
+
+      /* add some replies */
+      await server.inject({
+        method: 'POST',
+        url: `/threads/${threadId}/comments/${commentId1}/replies`,
+        payload: {
+          commentId: commentId1,
+          content: 'This is your mom reply',
+        },
+        headers: {
+          Authorization: `Bearer ${rofiAccessToken}`,
+        },
+      });
+
+      await server.inject({
+        method: 'POST',
+        url: `/threads/${threadId}/comments/${commentId1}/replies`,
+        payload: {
+          commentId: commentId1,
+          content: 'This is your dad reply',
+        },
+        headers: {
+          Authorization: `Bearer ${ashleyAccessToken}`,
         },
       });
 
@@ -297,7 +351,7 @@ describe('/threads endpoint', () => {
         method: 'GET',
         url: `/threads/${threadId}`,
         headers: {
-          Authorization: `Bearer ${accessToken}`,
+          Authorization: `Bearer ${rofiAccessToken}`,
         },
       });
 

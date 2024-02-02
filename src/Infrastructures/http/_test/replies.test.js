@@ -20,7 +20,7 @@ describe('/threads/{threadId}/comments/{commentId}/replies endpoint', () => {
     await RepliesTableTestHelper.cleanTable();
   });
 
-  describe('when POSt /threads/{threadId}/comments/{commentId}/replies', () => {
+  describe('when POST /threads/{threadId}/comments/{commentId}/replies', () => {
     it('should respond with a 201 status code and the persisted reply', async () => {
       // Arrange
       const server = await createServer(container);

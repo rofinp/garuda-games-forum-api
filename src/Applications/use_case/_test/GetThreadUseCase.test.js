@@ -1,5 +1,6 @@
 const ThreadRepository = require('../../../Domains/threads/ThreadRepository');
 const CommentRepository = require('../../../Domains/comments/CommentRepository');
+const ReplyRepository = require('../../../Domains/replies/ReplyRepository');
 const GetThreadUseCase = require('../GetThreadUseCase');
 
 describe('The GetThreadUseCase', () => {
@@ -18,15 +19,7 @@ describe('The GetThreadUseCase', () => {
         username: 'rofinugraha',
         date: '2024-04-04',
         isDeleted: false,
-      },
-      {
-        id: 'comment-313',
-        threadId: useCaseParams.threadId,
-        content: 'Hazelnut, what a comment',
-        owner: 'user-313',
-        username: 'ashleygraham',
-        date: '2024-04-04',
-        isDeleted: false,
+        replies: [],
       },
     ];
 
@@ -39,9 +32,29 @@ describe('The GetThreadUseCase', () => {
       comments: [],
     };
 
+    const reply = [
+      {
+        id: 'reply-123',
+        commentId: 'comment-123',
+        content: 'This is your mom reply',
+        owner: 'user-123',
+        date: '2021-08-08T07:19:09.775Z',
+        isDeleted: false,
+      },
+      {
+        id: 'reply-313',
+        commentId: 'comment-123',
+        content: 'This is your dad reply',
+        owner: 'user-313',
+        date: '2021-08-08T07:19:09.775Z',
+        isDeleted: false,
+      },
+    ];
+
     /** creating dependencies of use case */
     const mockThreadRepository = new ThreadRepository();
     const mockCommentRepository = new CommentRepository();
+    const mockReplyRepository = new ReplyRepository();
 
     /** mocking required function */
     mockThreadRepository.getThreadById = jest.fn()
@@ -50,23 +63,42 @@ describe('The GetThreadUseCase', () => {
       .mockImplementation(() => Promise.resolve(threadComments));
     mockCommentRepository.verifyCommentExistance = jest.fn()
       .mockImplementation(() => Promise.resolve());
+    mockReplyRepository.getRepliesByCommentId = jest.fn()
+      .mockImplementation(() => Promise.resolve([
+        { ...reply[0], username: 'rofinugraha' },
+        { ...reply[1], username: 'ashleygraham' },
+      ]));
 
     /** creating the use case instance */
     const getGetThreadUseCase = new GetThreadUseCase({
       threadRepository: mockThreadRepository,
       commentRepository: mockCommentRepository,
+      replyRepository: mockReplyRepository,
     });
 
     // Action
     const detailThread = await getGetThreadUseCase.execute(useCaseParams);
 
+    /* eslint-disable no-restricted-syntax */
+    /* eslint-disable no-await-in-loop */
+    for (const comment of detailThread.comments) {
+      const { id: commentId } = comment;
+      const commentReplies = await mockReplyRepository.getRepliesByCommentId(commentId);
+      comment.replies = commentReplies.map(({
+        id, content, date, username,
+      }) => ({
+        id, content, date, username,
+      }));
+    }
+
     /* Hapus beberapa properti dari setiap objek dalam array comments */
     const formattedComments = detailThread.comments.map(({
-      id, username, date, content,
+      id, username, date, replies, content,
     }) => ({
       id,
       username,
       date,
+      replies,
       content,
     }));
 
@@ -80,5 +112,11 @@ describe('The GetThreadUseCase', () => {
       .toHaveBeenCalledWith(useCaseParams.threadId);
     expect(mockCommentRepository.getCommentsByThreadId)
       .toHaveBeenCalledWith(useCaseParams.threadId);
+    expect(mockReplyRepository.getRepliesByCommentId)
+      .toHaveBeenCalledWith('comment-123');
+
+    detailThread.comments.forEach((comment) => {
+      expect(comment).toHaveProperty('replies');
+    });
   });
 });

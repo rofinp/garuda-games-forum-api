@@ -12,7 +12,7 @@ class ReplyRepository {
     throw new Error('REPLY_REPOSITORY.METHOD_NOT_IMPLEMENTED');
   }
 
-  async getReplyByIds({ threadId, commentId, replyId }) {
+  async verifyReplyExistance({ threadId, commentId, replyId }) {
     throw new Error('REPLY_REPOSITORY.METHOD_NOT_IMPLEMENTED');
   }
 

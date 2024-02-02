@@ -40,9 +40,10 @@ class ReplyRepositoryPostgres extends ReplyRepository {
 
   async getRepliesByCommentId(commentId) {
     const query = {
-      text: `SELECT replies.*, users.username
+      text: `SELECT replies.id, comments.id AS comment_id, replies.content, users.username, replies.date, replies.is_deleted
              FROM replies
              INNER JOIN users ON replies.owner = users.id
+             INNER JOIN comments ON replies.comment_id = comments.id
              WHERE replies.comment_id = $1
              ORDER BY replies.date ASC`,
       values: [commentId],
@@ -62,9 +63,9 @@ class ReplyRepositoryPostgres extends ReplyRepository {
     return formattedReplies;
   }
 
-  async getReplyByIds({ threadId, commentId, replyId }) {
+  async verifyReplyExistance({ threadId, commentId, replyId }) {
     const query = {
-      text: `SELECT replies.id, comments.id AS comment_id, replies.content, replies.date, users.username, replies.is_deleted 
+      text: `SELECT replies.id, comments.id AS comment_id, replies.is_deleted 
       FROM replies
       INNER JOIN users ON replies.owner = users.id
       INNER JOIN comments ON replies.comment_id = comments.id

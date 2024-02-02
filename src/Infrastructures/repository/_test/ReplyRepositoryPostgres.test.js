@@ -131,7 +131,6 @@ describe('ReplyRepositoryPostgres', () => {
         id: 'reply-123',
         commentId: 'comment-123',
         content: 'This is your mom reply',
-        owner: 'user-123',
         date: '2021-08-08T07:19:09.775Z',
         isDeleted: false,
       };
@@ -140,33 +139,34 @@ describe('ReplyRepositoryPostgres', () => {
         id: 'reply-321',
         commentId: 'comment-123',
         content: 'This is your dad reply',
-        owner: 'user-321',
         date: '2021-08-08T07:19:09.775Z',
         isDeleted: false,
       };
 
-      await RepliesTableTestHelper.addReply(firstReply);
-      await RepliesTableTestHelper.addReply(secondReply);
+      await RepliesTableTestHelper.addReply({ ...firstReply, owner: 'user-123' });
+      await RepliesTableTestHelper.addReply({ ...secondReply, owner: 'user-321' });
 
       // Action
       const allCommentReplies = await replyRepositoryPostgres.getRepliesByCommentId('comment-123');
 
+      const cleanedReply = allCommentReplies.map(({ owner, ...reply }) => reply);
+
       // Assert
-      expect(allCommentReplies).toHaveLength(2);
-      expect(allCommentReplies).toStrictEqual([
+      expect(cleanedReply).toHaveLength(2);
+      expect(cleanedReply).toStrictEqual([
         { ...firstReply, username: 'rofinugraha' },
         { ...secondReply, username: 'ashleygraham' },
       ]);
     });
   });
 
-  describe('getReplyByIds function', () => {
+  describe('verifyReplyExistance function', () => {
     it('should throw a NotFoundError when the reply does not exist', async () => {
       // Arrange
       const replyRepositoryPostgres = new ReplyRepositoryPostgres(pool, {});
 
       // Action & Assert
-      await expect(replyRepositoryPostgres.getReplyByIds({
+      await expect(replyRepositoryPostgres.verifyReplyExistance({
         threadId: 'thread-123',
         commentId: 'comment-123',
         replyId: 'reply-123',
@@ -184,7 +184,7 @@ describe('ReplyRepositoryPostgres', () => {
       await RepliesTableTestHelper.findReplyById('reply-123');
 
       // Action & Assert
-      await expect(replyRepositoryPostgres.getReplyByIds({
+      await expect(replyRepositoryPostgres.verifyReplyExistance({
         threadId: 'thread-123', commentId: 'comment-123', replyId: 'reply-123',
       }))
         .resolves
@@ -206,7 +206,7 @@ describe('ReplyRepositoryPostgres', () => {
       // Action & Assert
       expect(deletedReply).toHaveProperty('is_deleted', true);
       expect(deletedReply).toHaveProperty('content', '**balasan telah dihapus**');
-      await expect(replyRepositoryPostgres.getReplyByIds({
+      await expect(replyRepositoryPostgres.verifyReplyExistance({
         threadId: 'thread-123',
         commentId: 'comment-123',
         replyId: 'reply-123',

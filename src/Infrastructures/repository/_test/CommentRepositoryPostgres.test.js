@@ -85,20 +85,20 @@ describe('CommentRepositoryPostgres', () => {
 
       const firstComment = {
         id: 'comment-123',
-        threadId: 'thread-123',
         content: 'What a comment 1',
         owner: 'user-123',
         date: '2021-08-08T07:19:09.775Z',
         isDeleted: false,
+        replies: [],
       };
 
       const secondComment = {
         id: 'comment-321',
-        threadId: 'thread-123',
         content: 'What a comment 2',
         owner: 'user-321',
         date: '2021-09-09T07:19:09.775Z',
         isDeleted: false,
+        replies: [],
       };
 
       const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});

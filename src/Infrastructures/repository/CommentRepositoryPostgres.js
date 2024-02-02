@@ -28,7 +28,7 @@ class CommentRepositoryPostgres extends CommentRepository {
 
   async getCommentsByThreadId(threadId) {
     const query = {
-      text: `SELECT comments.*, users.username
+      text: `SELECT comments.id, users.username, comments.date, comments.content, comments.owner, comments.is_deleted
              FROM comments
              INNER JOIN users ON comments.owner = users.id
              WHERE comments.thread_id = $1
@@ -40,11 +40,11 @@ class CommentRepositoryPostgres extends CommentRepository {
 
     /* eslint-disable camelcase */
     const formattedComments = result.rows.map(({
-      is_deleted, thread_id, ...rest
+      is_deleted, ...rest
     }) => ({
       ...rest,
-      threadId: thread_id,
       isDeleted: is_deleted,
+      replies: [],
     }));
 
     return formattedComments;
