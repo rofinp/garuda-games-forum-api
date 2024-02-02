@@ -1,7 +1,6 @@
 const ThreadsTableTestHelper = require('../../../../tests/ThreadsTableTestHelper');
 const UsersTableTestHelper = require('../../../../tests/UsersTableTestHelper');
 const CommentsTableTestHelper = require('../../../../tests/CommentsTableTestHelper');
-const CommentRepositoryTestHelper = require('../../../../tests/CommentsTableTestHelper');
 const CommentRepository = require('../../../Domains/comments/CommentRepository');
 const RegisterComment = require('../../../Domains/comments/entities/RegisterComment');
 const RegisteredComment = require('../../../Domains/comments/entities/RegisteredComment');
