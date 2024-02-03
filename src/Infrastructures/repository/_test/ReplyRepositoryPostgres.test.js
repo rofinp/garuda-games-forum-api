@@ -116,6 +116,7 @@ describe('ReplyRepositoryPostgres', () => {
 
       // Assert
       expect(commentReplies).toStrictEqual([]);
+      expect(commentReplies).toHaveLength(0);
     });
 
     it('should return all replies from the comment', async () => {
@@ -131,6 +132,7 @@ describe('ReplyRepositoryPostgres', () => {
         id: 'reply-123',
         commentId: 'comment-123',
         content: 'This is your mom reply',
+        owner: 'user-123',
         date: '2021-08-08T07:19:09.775Z',
         isDeleted: false,
       };
@@ -139,21 +141,20 @@ describe('ReplyRepositoryPostgres', () => {
         id: 'reply-321',
         commentId: 'comment-123',
         content: 'This is your dad reply',
+        owner: 'user-321',
         date: '2021-08-08T07:19:09.775Z',
         isDeleted: false,
       };
 
-      await RepliesTableTestHelper.addReply({ ...firstReply, owner: 'user-123' });
-      await RepliesTableTestHelper.addReply({ ...secondReply, owner: 'user-321' });
+      await RepliesTableTestHelper.addReply(firstReply);
+      await RepliesTableTestHelper.addReply(secondReply);
 
       // Action
       const allCommentReplies = await replyRepositoryPostgres.getRepliesByCommentId('comment-123');
 
-      const cleanedReply = allCommentReplies.map(({ owner, ...reply }) => reply);
-
       // Assert
-      expect(cleanedReply).toHaveLength(2);
-      expect(cleanedReply).toStrictEqual([
+      expect(allCommentReplies).toHaveLength(2);
+      expect(allCommentReplies).toStrictEqual([
         { ...firstReply, username: 'rofinugraha' },
         { ...secondReply, username: 'ashleygraham' },
       ]);

@@ -11,7 +11,7 @@ class GetThreadUseCase {
     const { threadId } = useCaseParams;
     const thread = await this._threadRepository.getThreadById(threadId);
     const comments = await this._commentRepository.getCommentsByThreadId(threadId);
-
+    // console.log(comments);
     const formattedComments = comments.map(({
       id, username, date, replies, content,
     }) => ({
@@ -24,6 +24,10 @@ class GetThreadUseCase {
 
     thread.comments = formattedComments;
 
+    /** TODO: Kepada mentor, adakah cara yang lebih baik selain menggunakan
+     * loops untuk memasukkan data replies ke dalam property comment replies?
+     * Mengingat cara loops ini dilarang dalam best practice AirBNB styles.
+     */
     for (const comment of formattedComments) {
       const { id: commentId } = comment;
       const commentReplies = await this._replyRepository.getRepliesByCommentId(commentId);

@@ -11,7 +11,10 @@ const CommentRepositoryPostgres = require('../CommentRepositoryPostgres');
 
 describe('CommentRepositoryPostgres', () => {
   it('should be instance of the CommentRepository domain', () => {
+    // Arrange
     const commentRepositoryPostgres = new CommentRepositoryPostgres({}, {});
+
+    // Action & Assert
     expect(commentRepositoryPostgres).toBeInstanceOf(CommentRepository);
   });
 
@@ -51,10 +54,10 @@ describe('CommentRepositoryPostgres', () => {
 
       // Action
       const registeredComment = await commentRepositoryPostgres.addComment(registerComment);
-      const confirmComment = await CommentsTableTestHelper.findCommentById(registeredComment.id);
+      const getComment = await CommentsTableTestHelper.findCommentById(registeredComment.id);
 
       // Assert
-      expect(confirmComment.id).toEqual('comment-123');
+      expect(getComment).toHaveProperty('id', 'comment-123');
       expect(registeredComment).toStrictEqual(new RegisteredComment({
         id: 'comment-123',
         content: 'What a comment',
@@ -73,6 +76,7 @@ describe('CommentRepositoryPostgres', () => {
 
       // Assert
       expect(threadComments).toStrictEqual([]);
+      expect(threadComments).toHaveLength(0);
     });
 
     it('should return all comments from the thread', async () => {
@@ -84,20 +88,20 @@ describe('CommentRepositoryPostgres', () => {
 
       const firstComment = {
         id: 'comment-123',
+        threadId: 'thread-123',
         content: 'What a comment 1',
         owner: 'user-123',
         date: '2021-08-08T07:19:09.775Z',
         isDeleted: false,
-        replies: [],
       };
 
       const secondComment = {
         id: 'comment-321',
+        threadId: 'thread-123',
         content: 'What a comment 2',
         owner: 'user-321',
         date: '2021-09-09T07:19:09.775Z',
         isDeleted: false,
-        replies: [],
       };
 
       const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
@@ -110,8 +114,8 @@ describe('CommentRepositoryPostgres', () => {
       // Assert
       expect(allThreadComments).toHaveLength(2);
       expect(allThreadComments).toStrictEqual([
-        { ...firstComment, username: 'rofinugraha' }, // firstComment
-        { ...secondComment, username: 'ashleygraham' }, // secondComment
+        { ...firstComment, username: 'rofinugraha', replies: [] }, // firstComment
+        { ...secondComment, username: 'ashleygraham', replies: [] }, // secondComment
       ]);
     });
   });
@@ -130,11 +134,11 @@ describe('CommentRepositoryPostgres', () => {
     it('should soft delete the comment if it exists or is found', async () => {
       // Arrange
       const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
-
       const comment = {
         id: 'comment-123',
         threadId: 'thread-123',
         content: 'What a comment',
+        owner: 'user-123',
       };
 
       await CommentsTableTestHelper.addComment(comment);
@@ -164,16 +168,14 @@ describe('CommentRepositoryPostgres', () => {
       // Arrange
       const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
 
-      await CommentsTableTestHelper.addComment({
-        id: 'comment-123',
-        isDeleted: false,
-      });
+      await CommentsTableTestHelper.addComment({});
 
       await CommentsTableTestHelper.findCommentById('comment-123');
 
       // Action & Assert
       await expect(commentRepositoryPostgres.verifyCommentExistance({ threadId: 'thread-123', commentId: 'comment-123' }))
-        .resolves.not.toThrow(NotFoundError);
+        .resolves
+        .not.toThrow(NotFoundError);
     });
 
     it('should throw a NotFoundError when the comment is already deleted', async () => {
@@ -201,11 +203,7 @@ describe('CommentRepositoryPostgres', () => {
       // Arrange
       const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
 
-      await CommentsTableTestHelper.addComment({
-        id: 'comment-123',
-        threadId: 'thread-123',
-        owner: 'user-123',
-      });
+      await CommentsTableTestHelper.addComment({});
 
       // Action & Assert
       await expect(commentRepositoryPostgres.verifyCommentAuthorization({
@@ -220,20 +218,15 @@ describe('CommentRepositoryPostgres', () => {
       // Arrange
       const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
 
-      await CommentsTableTestHelper.addComment({
-        id: 'comment-123',
-        threadId: 'thread-123',
-        owner: 'user-123',
-      });
-
-      const getComment = await CommentsTableTestHelper.findCommentById('comment-123');
+      await CommentsTableTestHelper.addComment({});
 
       // Action & Assert
-      expect(getComment).toHaveProperty('owner', 'user-123');
-      expect(getComment).toHaveProperty('id', 'comment-123');
-      await expect(commentRepositoryPostgres.verifyCommentAuthorization({ owner: 'user-123', commentId: 'comment-123' }))
-        .resolves.not
-        .toThrow(AuthorizationError);
+      await expect(commentRepositoryPostgres.verifyCommentAuthorization({
+        owner: 'user-123',
+        commentId: 'comment-123',
+      }))
+        .resolves
+        .not.toThrow(AuthorizationError);
     });
   });
 });

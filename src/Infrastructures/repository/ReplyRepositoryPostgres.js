@@ -40,7 +40,7 @@ class ReplyRepositoryPostgres extends ReplyRepository {
 
   async getRepliesByCommentId(commentId) {
     const query = {
-      text: `SELECT replies.id, comments.id AS comment_id, replies.content, users.username, replies.date, replies.is_deleted
+      text: `SELECT replies.*, users.username
              FROM replies
              INNER JOIN users ON replies.owner = users.id
              INNER JOIN comments ON replies.comment_id = comments.id
@@ -52,15 +52,13 @@ class ReplyRepositoryPostgres extends ReplyRepository {
     const result = await this._pool.query(query);
 
     /* eslint-disable camelcase */
-    const formattedReplies = result.rows.map(({
+    return result.rows.map(({
       is_deleted, comment_id, ...rest
     }) => ({
       ...rest,
       commentId: comment_id,
       isDeleted: is_deleted,
     }));
-
-    return formattedReplies;
   }
 
   async verifyReplyExistance({ threadId, commentId, replyId }) {
