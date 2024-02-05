@@ -10,8 +10,8 @@ class ReplyRepositoryPostgres extends ReplyRepository {
     this._idGenerator = idGenerator;
   }
 
-  async addReply(registerReply) {
-    const { commentId, content, owner } = registerReply;
+  async addReply(owner, commentId, registerReply) {
+    const { content } = registerReply;
     const id = `reply-${this._idGenerator()}`;
     const date = new Date().toISOString();
     const query = {
@@ -27,7 +27,7 @@ class ReplyRepositoryPostgres extends ReplyRepository {
   async deleteReply(replyId) {
     const query = {
       text: `UPDATE replies
-             SET is_deleted = true, content = '**balasan telah dihapus**'
+             SET is_deleted = true
              WHERE id = $1`,
       values: [replyId],
     };
@@ -40,7 +40,7 @@ class ReplyRepositoryPostgres extends ReplyRepository {
 
   async getRepliesByCommentId(commentId) {
     const query = {
-      text: `SELECT replies.*, users.username
+      text: `SELECT replies.id, replies.comment_id, replies.content, users.username, replies.date, replies.is_deleted
              FROM replies
              INNER JOIN users ON replies.owner = users.id
              INNER JOIN comments ON replies.comment_id = comments.id
@@ -50,15 +50,7 @@ class ReplyRepositoryPostgres extends ReplyRepository {
     };
 
     const result = await this._pool.query(query);
-
-    /* eslint-disable camelcase */
-    return result.rows.map(({
-      is_deleted, comment_id, ...rest
-    }) => ({
-      ...rest,
-      commentId: comment_id,
-      isDeleted: is_deleted,
-    }));
+    return result.rows;
   }
 
   async verifyReplyExistance({ threadId, commentId, replyId }) {

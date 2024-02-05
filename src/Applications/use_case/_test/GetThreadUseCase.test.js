@@ -3,6 +3,8 @@ const CommentRepository = require('../../../Domains/comments/CommentRepository')
 const ReplyRepository = require('../../../Domains/replies/ReplyRepository');
 const GetThreadUseCase = require('../GetThreadUseCase');
 
+/* eslint-disable no-restricted-syntax */
+/* eslint-disable no-await-in-loop */
 describe('The GetThreadUseCase', () => {
   it('should orchestrates the getThreadById action correctly', async () => {
     // Arrange
@@ -10,44 +12,49 @@ describe('The GetThreadUseCase', () => {
       threadId: 'thread-123',
     };
 
-    const threadComments = [
-      {
-        id: 'comment-123',
-        threadId: useCaseParams.threadId,
-        content: 'Almonds, what a comment',
-        owner: 'user-123',
-        username: 'rofinugraha',
-        date: '2024-04-04',
-        isDeleted: false,
-        replies: [],
-      },
-    ];
-
     const thread = {
       id: useCaseParams.threadId,
       title: 'The Almonds',
       body: 'I love you so much Almond',
-      owner: 'rofinugraha',
+      username: 'rofinugraha',
       date: '2023-03-03',
-      comments: [],
     };
 
-    const reply = [
+    const threadComments = [
+      {
+        id: 'comment-123',
+        thread_id: useCaseParams.threadId,
+        content: 'Almonds, what a comment',
+        username: 'rofinugraha',
+        date: '2024-04-04',
+        is_deleted: false,
+      },
+      {
+        id: 'comment-313',
+        thread_id: useCaseParams.threadId,
+        content: 'Hazelnut, what a comment',
+        username: 'ashleygraham',
+        date: '2024-04-04',
+        is_deleted: true,
+      },
+    ];
+
+    const commentReplies = [
       {
         id: 'reply-123',
-        commentId: 'comment-123',
+        comment_id: 'comment-123',
         content: 'This is your mom reply',
-        owner: 'user-123',
+        username: 'rofinugraha',
         date: '2021-08-08T07:19:09.775Z',
-        isDeleted: false,
+        is_deleted: true,
       },
       {
         id: 'reply-313',
-        commentId: 'comment-123',
+        comment_id: 'comment-123',
         content: 'This is your dad reply',
-        owner: 'user-313',
+        username: 'ashleygraham',
         date: '2021-08-08T07:19:09.775Z',
-        isDeleted: false,
+        is_deleted: false,
       },
     ];
 
@@ -57,17 +64,14 @@ describe('The GetThreadUseCase', () => {
     const mockReplyRepository = new ReplyRepository();
 
     /** mocking required function */
+    mockThreadRepository.verifyThreadExistance = jest.fn()
+      .mockImplementation(() => Promise.resolve());
     mockThreadRepository.getThreadById = jest.fn()
       .mockImplementation(() => Promise.resolve(thread));
     mockCommentRepository.getCommentsByThreadId = jest.fn()
       .mockImplementation(() => Promise.resolve(threadComments));
-    mockCommentRepository.verifyCommentExistance = jest.fn()
-      .mockImplementation(() => Promise.resolve());
     mockReplyRepository.getRepliesByCommentId = jest.fn()
-      .mockImplementation(() => Promise.resolve([
-        { ...reply[0], username: 'rofinugraha' },
-        { ...reply[1], username: 'ashleygraham' },
-      ]));
+      .mockImplementation(() => Promise.resolve(commentReplies));
 
     /** creating the use case instance */
     const getGetThreadUseCase = new GetThreadUseCase({
@@ -76,15 +80,22 @@ describe('The GetThreadUseCase', () => {
       replyRepository: mockReplyRepository,
     });
 
-    // Action
-    const detailThread = await getGetThreadUseCase.execute(useCaseParams);
-
-    /* eslint-disable no-restricted-syntax */
-    /* eslint-disable no-await-in-loop */
-    for (const comment of detailThread.comments) {
+    for (const comment of threadComments) {
       const { id: commentId } = comment;
-      const commentReplies = await mockReplyRepository.getRepliesByCommentId(commentId);
-      comment.replies = commentReplies.map(({
+      if (comment.is_deleted) {
+        comment.content = '**komentar telah dihapus**';
+      }
+
+      let replies = await mockReplyRepository.getRepliesByCommentId(commentId);
+
+      replies = replies.filter((reply) => reply.comment_id === commentId);
+
+      for (const reply of replies) {
+        if (reply.is_deleted) {
+          reply.content = '**balasan telah dihapus**';
+        }
+      }
+      comment.replies = replies.map(({
         id, content, date, username,
       }) => ({
         id, content, date, username,
@@ -92,7 +103,7 @@ describe('The GetThreadUseCase', () => {
     }
 
     /* Hapus beberapa properti dari setiap objek dalam array comments */
-    const formattedComments = detailThread.comments.map(({
+    const formattedComments = threadComments.map(({
       id, username, date, replies, content,
     }) => ({
       id,
@@ -102,18 +113,27 @@ describe('The GetThreadUseCase', () => {
       content,
     }));
 
-    // Assert
-    expect(detailThread.comments).toEqual(formattedComments);
-    expect(detailThread).toEqual({
-      ...thread, comments: formattedComments,
-    });
+    // Action
+    const detailThread = await getGetThreadUseCase.execute(useCaseParams);
 
+    // Assert
+    expect(mockThreadRepository.verifyThreadExistance)
+      .toHaveBeenCalledWith(useCaseParams.threadId);
     expect(mockThreadRepository.getThreadById)
       .toHaveBeenCalledWith(useCaseParams.threadId);
+
     expect(mockCommentRepository.getCommentsByThreadId)
       .toHaveBeenCalledWith(useCaseParams.threadId);
+
     expect(mockReplyRepository.getRepliesByCommentId)
       .toHaveBeenCalledWith('comment-123');
+
+    expect(detailThread).toEqual({
+      ...thread,
+      comments: formattedComments,
+    });
+
+    expect(detailThread).toHaveProperty('comments');
 
     detailThread.comments.forEach((comment) => {
       expect(comment).toHaveProperty('replies');

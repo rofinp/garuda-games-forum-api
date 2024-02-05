@@ -51,24 +51,29 @@ describe('ReplyRepositoryPostgres', () => {
     it('should persist and return the registered reply object correctly', async () => {
       // Arrange
       const registerReply = new RegisterReply({
-        commentId: 'comment-123',
         content: 'This is your mommy reply',
-        owner: 'user-123',
       });
+
+      const commentId = 'comment-123';
+      const owner = 'user-123';
 
       const fakeIdGenerator = () => '123'; // stub
       const replyRepositoryPostgres = new ReplyRepositoryPostgres(pool, fakeIdGenerator);
 
       // Action
-      const registeredReply = await replyRepositoryPostgres.addReply(registerReply);
-      const getReply = await RepliesTableTestHelper.findReplyById(registeredReply.id);
+      const registeredReply = await replyRepositoryPostgres
+        .addReply(owner, commentId, registerReply);
 
       // Assert
+      const getReply = await RepliesTableTestHelper.findReplyById(registeredReply.id);
+      expect(getReply).toBeDefined();
       expect(getReply).toHaveProperty('id', 'reply-123');
+      expect(getReply).toHaveProperty('comment_id', commentId);
+      expect(getReply).toHaveProperty('owner', owner);
       expect(registeredReply).toStrictEqual(new RegisteredReply({
         id: 'reply-123',
         content: 'This is your mommy reply',
-        owner: 'user-123',
+        owner,
       }));
     });
   });
@@ -98,10 +103,10 @@ describe('ReplyRepositoryPostgres', () => {
 
       // Action
       await replyRepositoryPostgres.deleteReply(reply.id);
-      const getReply = await RepliesTableTestHelper.findReplyById(reply.id);
 
       // Assert
-      expect(getReply).toHaveProperty('content', '**balasan telah dihapus**');
+      const getReply = await RepliesTableTestHelper.findReplyById(reply.id);
+      expect(getReply).toBeDefined();
       expect(getReply).toHaveProperty('is_deleted', true);
     });
   });
@@ -130,24 +135,22 @@ describe('ReplyRepositoryPostgres', () => {
 
       const firstReply = {
         id: 'reply-123',
-        commentId: 'comment-123',
+        comment_id: 'comment-123',
         content: 'This is your mom reply',
-        owner: 'user-123',
         date: '2021-08-08T07:19:09.775Z',
-        isDeleted: false,
+        is_deleted: false,
       };
 
       const secondReply = {
         id: 'reply-321',
-        commentId: 'comment-123',
+        comment_id: 'comment-123',
         content: 'This is your dad reply',
-        owner: 'user-321',
         date: '2021-08-08T07:19:09.775Z',
-        isDeleted: false,
+        is_deleted: false,
       };
 
-      await RepliesTableTestHelper.addReply(firstReply);
-      await RepliesTableTestHelper.addReply(secondReply);
+      await RepliesTableTestHelper.addReply({ ...firstReply, owner: 'user-123' });
+      await RepliesTableTestHelper.addReply({ ...secondReply, owner: 'user-321' });
 
       // Action
       const allCommentReplies = await replyRepositoryPostgres.getRepliesByCommentId('comment-123');
@@ -202,9 +205,9 @@ describe('ReplyRepositoryPostgres', () => {
         isDeleted: true,
       });
 
-      const deletedReply = await RepliesTableTestHelper.findReplyById('reply-123');
-
       // Action & Assert
+      const deletedReply = await RepliesTableTestHelper.findReplyById('reply-123');
+      expect(deletedReply).toBeDefined();
       expect(deletedReply).toHaveProperty('is_deleted', true);
       expect(deletedReply).toHaveProperty('content', '**balasan telah dihapus**');
       await expect(replyRepositoryPostgres.verifyReplyExistance({

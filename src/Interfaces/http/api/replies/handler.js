@@ -7,20 +7,20 @@ class RepliesHandler {
   }
 
   async postReplyHandler(request, h) {
+    const { id: owner } = request.auth.credentials;
     const addReplyUseCase = this._container.getInstance(AddReplyUseCase.name);
     const addedReply = await addReplyUseCase
-      .execute(request.payload, request.params, request.headers);
-    const response = h.response({
+      .execute(owner, request.params, request.payload);
+    return h.response({
       status: 'success',
       data: { addedReply },
-    });
-    response.code(201);
-    return response;
+    }).code(201);
   }
 
   async deleteReplyHandler(request) {
+    const { id: owner } = request.auth.credentials;
     const deleteReplyUseCase = this._container.getInstance(DeleteReplyUseCase.name);
-    await deleteReplyUseCase.execute(request.params, request.headers);
+    await deleteReplyUseCase.execute(owner, request.params);
 
     return {
       status: 'success',

@@ -2,19 +2,17 @@ class RegisterReply {
   constructor(payload) {
     this._verifyThePayload(payload);
 
-    const { commentId, content, owner } = payload;
+    const { content } = payload;
 
-    this.commentId = commentId;
     this.content = content;
-    this.owner = owner;
   }
 
-  _verifyThePayload({ commentId, content, owner }) {
-    if (!commentId || !content || !owner) {
+  _verifyThePayload({ content }) {
+    if (!content) {
       throw new Error('REGISTER_REPLY.DOES_NOT_CONTAIN_REQUIRED_PROPERTY');
     }
 
-    if (typeof commentId !== 'string' || typeof content !== 'string' || typeof owner !== 'string') {
+    if (typeof content !== 'string') {
       throw new Error('REGISTER_REPLY.DOES_NOT_MEET_DATA_TYPE_SPECIFICATION');
     }
   }

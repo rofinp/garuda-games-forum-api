@@ -1,5 +1,4 @@
 const CommentRepository = require('../../../Domains/comments/CommentRepository');
-const AuthenticationTokenManager = require('../../security/AuthenticationTokenManager');
 const DeleteCommentUseCase = require('../DeleteCommentUseCase');
 
 describe('The DeleteCommentUseCase', () => {
@@ -10,32 +9,13 @@ describe('The DeleteCommentUseCase', () => {
       commentId: 'comment-123',
     };
 
-    const decodePayload = {
-      username: 'rofinugraha',
-      id: 'user-123',
-    };
-
-    const accessToken = 'access_token';
-
-    const useCaseHeaders = {
-      authorization: `Bearer ${accessToken}`,
-    };
+    const { threadId, commentId } = useCaseParams;
+    const owner = 'user-123';
 
     /** creating dependencies of use case */
     const mockCommentRepository = new CommentRepository();
-    const mockAuthenticationTokenManager = new AuthenticationTokenManager();
 
     /** mocking required function */
-    mockAuthenticationTokenManager.getAuthorizationToken = jest.fn()
-      .mockImplementation(() => Promise.resolve(accessToken));
-    mockAuthenticationTokenManager.verifyAccessToken = jest.fn()
-      .mockImplementation(() => Promise.resolve(accessToken));
-    mockAuthenticationTokenManager.decodePayload = jest.fn()
-      .mockImplementation(() => Promise.resolve({
-        username: decodePayload.username,
-        id: decodePayload.id,
-      }));
-
     mockCommentRepository.verifyCommentExistance = jest.fn()
       .mockImplementation(() => Promise.resolve());
     mockCommentRepository.verifyCommentAuthorization = jest.fn()
@@ -46,23 +26,17 @@ describe('The DeleteCommentUseCase', () => {
     /** creating the use case instance */
     const getDeleteCommentUseCase = new DeleteCommentUseCase({
       commentRepository: mockCommentRepository,
-      authenticationTokenManager: mockAuthenticationTokenManager,
     });
 
     // Action
-    await getDeleteCommentUseCase.execute(useCaseParams, useCaseHeaders);
+    await getDeleteCommentUseCase.execute(owner, useCaseParams);
 
     // Assert
-    expect(mockAuthenticationTokenManager.getAuthorizationToken)
-      .toHaveBeenCalledWith(useCaseHeaders.authorization);
-    expect(mockAuthenticationTokenManager.verifyAccessToken).toHaveBeenCalledWith(accessToken);
-    expect(mockAuthenticationTokenManager.decodePayload).toHaveBeenCalledWith(accessToken);
-
     expect(mockCommentRepository.verifyCommentExistance)
-      .toHaveBeenCalledWith(useCaseParams);
+      .toHaveBeenCalledWith({ threadId, commentId });
     expect(mockCommentRepository.verifyCommentAuthorization)
-      .toHaveBeenCalledWith({ owner: decodePayload.id, commentId: useCaseParams.commentId });
+      .toHaveBeenCalledWith({ owner, commentId });
     expect(mockCommentRepository.deleteCommentByCommentId)
-      .toHaveBeenCalledWith(useCaseParams.commentId);
+      .toHaveBeenCalledWith(commentId);
   });
 });

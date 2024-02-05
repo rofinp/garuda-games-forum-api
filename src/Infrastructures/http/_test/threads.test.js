@@ -314,7 +314,7 @@ describe('/threads endpoint', () => {
 
       /* delete a comment from the database */
       await server.inject({
-        method: 'PUT',
+        method: 'DELETE',
         url: `/threads/${threadId}/comments/${commentId2}`,
         headers: {
           Authorization: `Bearer ${rofiAccessToken}`,
@@ -334,13 +334,24 @@ describe('/threads endpoint', () => {
         },
       });
 
-      await server.inject({
+      const responseReply2 = await server.inject({
         method: 'POST',
         url: `/threads/${threadId}/comments/${commentId1}/replies`,
         payload: {
           commentId: commentId1,
           content: 'This is your dad reply',
         },
+        headers: {
+          Authorization: `Bearer ${ashleyAccessToken}`,
+        },
+      });
+
+      const { id: replyId2 } = (JSON.parse(responseReply2.payload)).data.addedReply;
+
+      /* delete a reply */
+      await server.inject({
+        method: 'DELETE',
+        url: `/threads/${threadId}/comments/${commentId1}/replies/${replyId2}`,
         headers: {
           Authorization: `Bearer ${ashleyAccessToken}`,
         },

@@ -5,7 +5,6 @@ describe('a RegisterThread entities', () => {
     // Arrange
     const payload = {
       title: 'untitled',
-      owner: 'user-123',
     };
 
     // Action & Assert
@@ -17,7 +16,6 @@ describe('a RegisterThread entities', () => {
     const payload = {
       title: 123,
       body: true,
-      owner: {},
     };
 
     // Action & Assert
@@ -29,7 +27,6 @@ describe('a RegisterThread entities', () => {
     const payload = {
       title: 'hello world hello world hello world hello world hello world hello world hello world hello world hello world hello world hello world hello world hello world title',
       body: 'hello world',
-      owner: 'user-123',
     };
 
     // Action & Assert
@@ -41,15 +38,13 @@ describe('a RegisterThread entities', () => {
     const payload = {
       title: 'untitled',
       body: 'hello world',
-      owner: 'user-123',
     };
 
     // Action
-    const { title, body, owner } = new RegisterThread(payload);
+    const { title, body } = new RegisterThread(payload);
 
     // Assert
     expect(title).toEqual(payload.title);
     expect(body).toEqual(payload.body);
-    expect(owner).toEqual(payload.owner);
   });
 });

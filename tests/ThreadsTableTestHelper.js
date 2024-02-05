@@ -11,7 +11,7 @@ const ThreadsTableTestHelper = {
   }) {
     const query = {
       text: `INSERT INTO threads (id, title, body, owner, date) 
-             VALUES($1, $2, $3, $4, $5)`,
+             VALUES ($1, $2, $3, $4, $5)`,
       values: [id, title, body, owner, date],
     };
     await pool.query(query);
@@ -24,7 +24,7 @@ const ThreadsTableTestHelper = {
     };
 
     const result = await pool.query(query);
-    return result.rows;
+    return result.rows[0];
   },
 
   async cleanTable() {

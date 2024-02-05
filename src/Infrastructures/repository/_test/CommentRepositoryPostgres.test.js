@@ -44,24 +44,30 @@ describe('CommentRepositoryPostgres', () => {
     it('should persist and return the registered comment object correctly', async () => {
       // Arrange
       const registerComment = new RegisterComment({
-        threadId: 'thread-123',
         content: 'What a comment',
-        owner: 'user-123',
       });
+
+      const owner = 'user-123';
+      const threadId = 'thread-123';
 
       const fakeIdGenerator = () => '123'; // stub
       const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, fakeIdGenerator);
 
       // Action
-      const registeredComment = await commentRepositoryPostgres.addComment(registerComment);
+      const registeredComment = await commentRepositoryPostgres
+        .addComment(owner, threadId, registerComment);
+
       const getComment = await CommentsTableTestHelper.findCommentById(registeredComment.id);
 
       // Assert
+      expect(getComment).toBeDefined();
       expect(getComment).toHaveProperty('id', 'comment-123');
+      expect(getComment).toHaveProperty('thread_id', threadId);
+      expect(getComment).toHaveProperty('owner', owner);
       expect(registeredComment).toStrictEqual(new RegisteredComment({
         id: 'comment-123',
         content: 'What a comment',
-        owner: 'user-123',
+        owner,
       }));
     });
   });
@@ -88,25 +94,23 @@ describe('CommentRepositoryPostgres', () => {
 
       const firstComment = {
         id: 'comment-123',
-        threadId: 'thread-123',
+        thread_id: 'thread-123',
         content: 'What a comment 1',
-        owner: 'user-123',
         date: '2021-08-08T07:19:09.775Z',
-        isDeleted: false,
+        is_deleted: false,
       };
 
       const secondComment = {
         id: 'comment-321',
-        threadId: 'thread-123',
+        thread_id: 'thread-123',
         content: 'What a comment 2',
-        owner: 'user-321',
         date: '2021-09-09T07:19:09.775Z',
-        isDeleted: false,
+        is_deleted: false,
       };
 
       const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
-      await CommentsTableTestHelper.addComment(firstComment);
-      await CommentsTableTestHelper.addComment(secondComment);
+      await CommentsTableTestHelper.addComment({ ...firstComment, owner: 'user-123' });
+      await CommentsTableTestHelper.addComment({ ...secondComment, owner: 'user-321' });
 
       // Action
       const allThreadComments = await commentRepositoryPostgres.getCommentsByThreadId('thread-123');
@@ -114,8 +118,8 @@ describe('CommentRepositoryPostgres', () => {
       // Assert
       expect(allThreadComments).toHaveLength(2);
       expect(allThreadComments).toStrictEqual([
-        { ...firstComment, username: 'rofinugraha', replies: [] }, // firstComment
-        { ...secondComment, username: 'ashleygraham', replies: [] }, // secondComment
+        { ...firstComment, username: 'rofinugraha' },
+        { ...secondComment, username: 'ashleygraham' },
       ]);
     });
   });
@@ -145,11 +149,11 @@ describe('CommentRepositoryPostgres', () => {
 
       // Action
       await commentRepositoryPostgres.deleteCommentByCommentId(comment.id);
-      const getComment = await CommentsTableTestHelper.findCommentById(comment.id);
 
       // Assert
+      const getComment = await CommentsTableTestHelper.findCommentById(comment.id);
+      expect(getComment).toBeDefined();
       expect(getComment).toHaveProperty('is_deleted', true);
-      expect(getComment).toHaveProperty('content', '**komentar telah dihapus**');
     });
   });
 
@@ -169,10 +173,10 @@ describe('CommentRepositoryPostgres', () => {
       const commentRepositoryPostgres = new CommentRepositoryPostgres(pool, {});
 
       await CommentsTableTestHelper.addComment({});
-
-      await CommentsTableTestHelper.findCommentById('comment-123');
+      const getComment = await CommentsTableTestHelper.findCommentById('comment-123');
 
       // Action & Assert
+      expect(getComment).toBeDefined();
       await expect(commentRepositoryPostgres.verifyCommentExistance({ threadId: 'thread-123', commentId: 'comment-123' }))
         .resolves
         .not.toThrow(NotFoundError);

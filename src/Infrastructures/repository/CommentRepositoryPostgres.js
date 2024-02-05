@@ -10,8 +10,8 @@ class CommentRepositoryPostgres extends CommentRepository {
     this._pool = pool;
   }
 
-  async addComment(registerComment) {
-    const { threadId, content, owner } = registerComment;
+  async addComment(owner, threadId, registerComment) {
+    const { content } = registerComment;
     const id = `comment-${this._idGenerator()}`;
     const date = new Date().toISOString();
 
@@ -28,7 +28,7 @@ class CommentRepositoryPostgres extends CommentRepository {
 
   async getCommentsByThreadId(threadId) {
     const query = {
-      text: `SELECT comments.*, users.username
+      text: `SELECT comments.id, comments.thread_id, comments.content, users.username, comments.date, comments.is_deleted
              FROM comments
              INNER JOIN users ON comments.owner = users.id
              WHERE comments.thread_id = $1
@@ -37,22 +37,13 @@ class CommentRepositoryPostgres extends CommentRepository {
     };
 
     const result = await this._pool.query(query);
-
-    /* eslint-disable camelcase */
-    return result.rows.map(({
-      is_deleted, thread_id, ...rest
-    }) => ({
-      ...rest,
-      threadId: thread_id,
-      replies: [],
-      isDeleted: is_deleted,
-    }));
+    return result.rows;
   }
 
   async deleteCommentByCommentId(commentId) {
     const query = {
       text: `UPDATE comments
-             SET is_deleted = true, content = '**komentar telah dihapus**'
+             SET is_deleted = true
              WHERE id = $1`,
       values: [commentId],
     };
@@ -69,13 +60,14 @@ class CommentRepositoryPostgres extends CommentRepository {
       text: `SELECT comments.id, threads.id AS thread_id, comments.is_deleted
              FROM comments
              INNER JOIN threads ON comments.thread_id = threads.id
-             WHERE threads.id = $1 AND comments.id = $2`,
+             WHERE threads.id = $1 
+             AND comments.id = $2`,
       values: [threadId, commentId],
     };
 
     const result = await this._pool.query(query);
 
-    if (result.rows.length === 0 || result.rows[0].is_deleted) {
+    if (!result.rowCount || result.rows[0].is_deleted) {
       throw new NotFoundError('komentar tidak ditemukan atau sudah dihapus');
     }
   }

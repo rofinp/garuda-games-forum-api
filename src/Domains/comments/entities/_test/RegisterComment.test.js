@@ -4,7 +4,6 @@ describe('a RegisterComment entities', () => {
   it('should throw an error when the payload does not contain the required property', () => {
     // Arrange
     const payload = {
-      username: 'rofinugraha',
     };
 
     // Action & Assert
@@ -14,9 +13,7 @@ describe('a RegisterComment entities', () => {
   it('should throw an error when the payload does not meet the data type specifications', () => {
     // Arrange
     const payload = {
-      threadId: ['thread-123'],
       content: {},
-      owner: 123,
     };
 
     // Action & Assert
@@ -26,17 +23,13 @@ describe('a RegisterComment entities', () => {
   it('should create a RegisterComment object correctly', () => {
     // Arrange
     const payload = {
-      threadId: 'thread-123',
       content: 'what a comment',
-      owner: 'user-123',
     };
 
     // Action
-    const { threadId, content, owner } = new RegisterComment(payload);
+    const { content } = new RegisterComment(payload);
 
     // Assert
-    expect(threadId).toEqual(payload.threadId);
     expect(content).toEqual(payload.content);
-    expect(owner).toEqual(payload.owner);
   });
 });

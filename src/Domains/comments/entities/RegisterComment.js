@@ -2,23 +2,17 @@ class RegisterComment {
   constructor(payload) {
     this._verifyThePayload(payload);
 
-    const {
-      threadId, content, owner,
-    } = payload;
+    const { content } = payload;
 
-    this.threadId = threadId;
     this.content = content;
-    this.owner = owner;
   }
 
-  _verifyThePayload({
-    threadId, content, owner,
-  }) {
-    if (!threadId || !content || !owner) {
+  _verifyThePayload({ content }) {
+    if (!content) {
       throw new Error('REGISTER_COMMENT.DOES_NOT_CONTAIN_REQUIRED_PROPERTY');
     }
 
-    if (typeof threadId !== 'string' || typeof content !== 'string' || typeof owner !== 'string') {
+    if (typeof content !== 'string') {
       throw new Error('REGISTER_COMMENT.DOES_NOT_MEET_DATA_TYPE_SPECIFICATION');
     }
   }
