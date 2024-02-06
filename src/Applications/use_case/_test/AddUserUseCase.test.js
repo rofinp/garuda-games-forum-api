@@ -32,7 +32,11 @@ describe('The AddUserUseCase', () => {
     mockPasswordHash.hash = jest.fn()
       .mockImplementation(() => Promise.resolve('encrypted_password'));
     mockUserRepository.addUser = jest.fn()
-      .mockImplementation(() => Promise.resolve(mockRegisteredUser));
+      .mockImplementation(() => Promise.resolve(new RegisteredUser({
+        id: mockRegisteredUser.id,
+        username: mockRegisteredUser.username,
+        fullname: mockRegisteredUser.fullname,
+      })));
 
     /** creating the use case instance */
     const getUserUseCase = new AddUserUseCase({
@@ -44,11 +48,7 @@ describe('The AddUserUseCase', () => {
     const registeredUser = await getUserUseCase.execute(useCasePayload);
 
     // Assert
-    expect(registeredUser).toStrictEqual(new RegisteredUser({
-      id: 'user-123',
-      username: useCasePayload.username,
-      fullname: useCasePayload.fullname,
-    }));
+    expect(registeredUser).toStrictEqual(mockRegisteredUser);
 
     expect(mockUserRepository.confirmUsernameAvailability)
       .toHaveBeenCalledWith(useCasePayload.username);

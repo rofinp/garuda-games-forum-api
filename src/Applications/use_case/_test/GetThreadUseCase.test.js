@@ -12,8 +12,10 @@ describe('The GetThreadUseCase', () => {
       threadId: 'thread-123',
     };
 
+    const { threadId } = useCaseParams;
+
     const thread = {
-      id: useCaseParams.threadId,
+      id: threadId,
       title: 'The Almonds',
       body: 'I love you so much Almond',
       username: 'rofinugraha',
@@ -23,7 +25,7 @@ describe('The GetThreadUseCase', () => {
     const threadComments = [
       {
         id: 'comment-123',
-        thread_id: useCaseParams.threadId,
+        thread_id: threadId,
         content: 'Almonds, what a comment',
         username: 'rofinugraha',
         date: '2024-04-04',
@@ -31,7 +33,7 @@ describe('The GetThreadUseCase', () => {
       },
       {
         id: 'comment-313',
-        thread_id: useCaseParams.threadId,
+        thread_id: threadId,
         content: 'Hazelnut, what a comment',
         username: 'ashleygraham',
         date: '2024-04-04',
@@ -118,12 +120,12 @@ describe('The GetThreadUseCase', () => {
 
     // Assert
     expect(mockThreadRepository.verifyThreadExistance)
-      .toHaveBeenCalledWith(useCaseParams.threadId);
+      .toHaveBeenCalledWith(threadId);
     expect(mockThreadRepository.getThreadById)
-      .toHaveBeenCalledWith(useCaseParams.threadId);
+      .toHaveBeenCalledWith(threadId);
 
     expect(mockCommentRepository.getCommentsByThreadId)
-      .toHaveBeenCalledWith(useCaseParams.threadId);
+      .toHaveBeenCalledWith(threadId);
 
     expect(mockReplyRepository.getRepliesByCommentId)
       .toHaveBeenCalledWith('comment-123');

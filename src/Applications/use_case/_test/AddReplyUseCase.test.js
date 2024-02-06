@@ -34,7 +34,11 @@ describe('The AddReplyUseCase class', () => {
       .mockImplementation(() => Promise.resolve());
 
     mockReplyRepository.addReply = jest.fn()
-      .mockImplementation(() => Promise.resolve(mockRegisteredReply));
+      .mockImplementation(() => Promise.resolve(new RegisteredReply({
+        id: mockRegisteredReply.id,
+        content: mockRegisteredReply.content,
+        owner: mockRegisteredReply.owner,
+      })));
 
     /** creating the use case instance */
     const getAddReplyUseCase = new AddReplyUseCase({

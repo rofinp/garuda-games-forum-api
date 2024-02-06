@@ -12,7 +12,8 @@ class AddReplyUseCase {
     const registerReply = new RegisterReply({
       ...requestPayload,
     });
-    return this._replyRepository.addReply(owner, commentId, registerReply);
+    const addedReply = await this._replyRepository.addReply(owner, commentId, registerReply);
+    return addedReply;
   }
 }
 

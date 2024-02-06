@@ -11,7 +11,8 @@ class AddCommentUseCase {
     const registerComment = new RegisterComment({
       ...requestPayload,
     });
-    return this._commentRepository.addComment(owner, threadId, registerComment);
+    const addedComment = await this._commentRepository.addComment(owner, threadId, registerComment);
+    return addedComment;
   }
 }
 

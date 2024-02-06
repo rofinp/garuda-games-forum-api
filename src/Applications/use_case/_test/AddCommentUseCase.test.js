@@ -33,7 +33,11 @@ describe('The AddCommentUseCase', () => {
       .mockImplementation(() => Promise.resolve());
 
     mockCommentRepository.addComment = jest.fn()
-      .mockImplementation(() => Promise.resolve(mockRegisteredComment));
+      .mockImplementation(() => Promise.resolve(new RegisteredComment({
+        id: mockRegisteredComment.id,
+        content: mockRegisteredComment.content,
+        owner: mockRegisteredComment.owner,
+      })));
 
     /** creating the use case instance */
     const getAddCommentUseCase = new AddCommentUseCase({

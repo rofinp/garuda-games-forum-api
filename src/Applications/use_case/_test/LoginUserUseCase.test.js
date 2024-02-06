@@ -47,7 +47,7 @@ describe('GetAuthenticationUseCase', () => {
     const actualAuthentication = await loginUserUseCase.execute(useCasePayload);
 
     // Assert
-    expect(actualAuthentication).toEqual(new NewAuth({
+    expect(actualAuthentication).toStrictEqual(new NewAuth({
       accessToken: 'access_token',
       refreshToken: 'refresh_token',
     }));
