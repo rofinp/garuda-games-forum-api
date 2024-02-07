@@ -1,6 +1,5 @@
 const Jwt = require('@hapi/jwt');
 const InvariantError = require('../../../Commons/exceptions/InvariantError');
-const AuthenticationError = require('../../../Commons/exceptions/AuthenticationError');
 const JwtTokenManager = require('../JwtTokenManager');
 const AuthenticationTokenManager = require('../../../Applications/security/AuthenticationTokenManager');
 
@@ -113,31 +112,6 @@ describe('JwtTokenManager', () => {
 
       // Action & Assert
       expect(expectedUsername).toEqual('rofinugraha');
-    });
-  });
-
-  describe('the getAuthorizationToken function', () => {
-    it('should throw an AuthorizationError when not authorized', async () => {
-      // Arrange
-      const jwtTokenManager = new JwtTokenManager(Jwt.token);
-      const authorizationToken = '';
-
-      // Action & Assert
-      await expect(jwtTokenManager.getAuthorizationToken(authorizationToken))
-        .rejects
-        .toThrow(AuthenticationError);
-    });
-
-    it('should return an authorization token', async () => {
-      // Arrange
-      const jwtTokenManager = new JwtTokenManager(Jwt.token);
-      const authorizationToken = 'Bearer access_token';
-
-      // Action
-      const token = await jwtTokenManager.getAuthorizationToken(authorizationToken);
-
-      // Assert
-      expect(token).toEqual('access_token');
     });
   });
 });

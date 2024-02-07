@@ -1,6 +1,5 @@
 const AuthenticationTokenManager = require('../../Applications/security/AuthenticationTokenManager');
 const InvariantError = require('../../Commons/exceptions/InvariantError');
-const AuthenticationError = require('../../Commons/exceptions/AuthenticationError');
 
 class JwtTokenManager extends AuthenticationTokenManager {
   constructor(jwt) {
@@ -37,14 +36,6 @@ class JwtTokenManager extends AuthenticationTokenManager {
   async decodePayload(token) {
     const artifacts = this._jwt.decode(token);
     return artifacts.decoded.payload;
-  }
-
-  async getAuthorizationToken(token) {
-    if (!token) {
-      throw new AuthenticationError('Missing authentication');
-    }
-
-    return token.replace(/^Bearer\s+/, '');
   }
 }
 
