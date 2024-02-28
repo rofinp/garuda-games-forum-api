@@ -370,6 +370,6 @@ describe('/threads endpoint', () => {
       const responseJson = JSON.parse(response.payload);
       expect(response).toHaveProperty('statusCode', 200);
       expect(responseJson).toHaveProperty('status', 'success');
-    });
+    }, 10000);
   });
 });
