@@ -8,9 +8,11 @@ describe('a LikeRepository interface', () => {
     // Action & Assert
     await expect(likeRepository.addLike('', ''))
       .rejects.toThrow('LIKE_REPOSITORY.METHOD_NOT_IMPLEMENTED');
-    await expect(likeRepository.deleteLikeByCommentIdAndOwner({}))
+    await expect(likeRepository.deleteLikeByLikeId(''))
       .rejects.toThrow('LIKE_REPOSITORY.METHOD_NOT_IMPLEMENTED');
     await expect(likeRepository.getLikeCountByCommentId(''))
+      .rejects.toThrow('LIKE_REPOSITORY.METHOD_NOT_IMPLEMENTED');
+    await expect(likeRepository.verifyLikeAuthorization({}))
       .rejects.toThrow('LIKE_REPOSITORY.METHOD_NOT_IMPLEMENTED');
   });
 });

@@ -1,3 +1,4 @@
+/* istanbul ignore file */
 const pool = require('../src/Infrastructures/database/postgres/pool');
 
 const LikesTableTestHelper = {
@@ -18,7 +19,12 @@ const LikesTableTestHelper = {
       values: [id],
     };
 
-    await pool.query(query);
+    const result = await pool.query(query);
+    return result.rows[0];
+  },
+
+  async cleanTable() {
+    await pool.query('DELETE FROM likes WHERE 1=1');
   },
 };
 
