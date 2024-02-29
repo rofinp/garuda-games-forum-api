@@ -5,7 +5,6 @@ const UsersTableTestHelper = require('../../../../tests/UsersTableTestHelper');
 const CommentsTableTestHelper = require('../../../../tests/CommentsTableTestHelper');
 const LikesTableTestHelper = require('../../../../tests/LikesTableTestHelper');
 const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
-const AuthorizationError = require('../../../Commons/exceptions/AuthorizationError');
 const pool = require('../../database/postgres/pool');
 
 describe('LikeRepositoryPostgres', () => {
