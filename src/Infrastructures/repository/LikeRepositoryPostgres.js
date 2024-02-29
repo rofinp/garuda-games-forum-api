@@ -46,22 +46,22 @@ class LikeRepositoryPostgres extends LikeRepository {
     return result.rowCount;
   }
 
-  // async verifyLikeAuthorization({ owner, likeId }) {
-  //   const query = {
-  //     text: `SELECT likes.id, users.id AS owner
-  //            FROM likes
-  //            INNER JOIN users ON likes.owner = users.id
-  //            WHERE users.id = $1
-  //            AND likes.id = $2`,
-  //     values: [owner, likeId],
-  //   };
+  async verifyLikeAuthorization({ owner, likeId }) {
+    const query = {
+      text: `SELECT likes.id, users.id AS owner
+             FROM likes
+             INNER JOIN users ON likes.owner = users.id
+             WHERE users.id = $1
+             AND likes.id = $2`,
+      values: [owner, likeId],
+    };
 
-  //   const result = await this._pool.query(query);
+    const result = await this._pool.query(query);
 
-  //   if (!result.rowCount) {
-  //     throw new AuthorizationError('tidak dapat mengakses sumber ini, harap login terlebih dahulu');
-  //   }
-  // }
+    if (!result.rowCount) {
+      throw new AuthorizationError('tidak dapat mengakses sumber ini, harap login terlebih dahulu');
+    }
+  }
 }
 
 module.exports = LikeRepositoryPostgres;
