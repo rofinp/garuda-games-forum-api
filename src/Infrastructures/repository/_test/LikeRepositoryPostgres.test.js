@@ -70,13 +70,16 @@ describe('LikeRepositoryPostgres', () => {
     });
   });
 
-  describe('deleteLikeByCommentIdAndOwner function', () => {
+  describe('deleteLikeByOwnerAndCommentId function', () => {
     it('should throw a NotFoundError when the like does not exist or is not found', async () => {
       // Arrange
       const likeRepositoryPostgres = new LikeRepositoryPostgres(pool, {});
 
       // Action & Assert
-      await expect(likeRepositoryPostgres.deleteLikeByLikeId('like-123'))
+      await expect(likeRepositoryPostgres.deleteLikeByOwnerAndCommentId({
+        owner: 'user-123',
+        commentId: 'comment-123',
+      }))
         .rejects.toThrow(NotFoundError);
     });
 
@@ -92,7 +95,10 @@ describe('LikeRepositoryPostgres', () => {
       await LikesTableTestHelper.addLike(like);
 
       // Action
-      await likeRepositoryPostgres.deleteLikeByLikeId(like.id);
+      await likeRepositoryPostgres.deleteLikeByOwnerAndCommentId({
+        owner: like.owner,
+        commentId: like.commentId,
+      });
 
       // Assert
       const getLike = await LikesTableTestHelper.findLikeById(like.id);
@@ -109,7 +115,7 @@ describe('LikeRepositoryPostgres', () => {
       const likeCount = await likeRepositoryPostgres.getLikeCountByCommentId('comment-123');
 
       // Assert
-      expect(likeCount).toStrictEqual(0);
+      expect(likeCount.length).toStrictEqual(0);
     });
 
     it('should return & count all likes for the comment', async () => {
@@ -143,35 +149,34 @@ describe('LikeRepositoryPostgres', () => {
       const countLikes = await likeRepositoryPostgres.getLikeCountByCommentId('comment-123');
 
       // Assert
-      expect(countLikes).toStrictEqual(2);
+      expect(countLikes.length).toStrictEqual(2);
     });
   });
 
-  describe('verifyLikeAuthorization function', () => {
-    it('should throw an AuthorizationError when the user is unauthorized', async () => {
+  describe('isCommentLiked function', () => {
+    it('should return false if the comment has not liked', async () => {
       // Arrange
       const likeRepositoryPostgres = new LikeRepositoryPostgres(pool, {});
-      await LikesTableTestHelper.addLike({});
 
-      // Action & Assert
-      await expect(likeRepositoryPostgres.verifyLikeAuthorization({
-        owner: '' || undefined || 'user-313',
-        likeId: 'like-123',
-      }))
-        .rejects.toThrow(AuthorizationError);
+      // Action
+      const isCommentLiked = await likeRepositoryPostgres
+        .isCommentLiked({ owner: 'user-123', commentId: 'comment-123' });
+
+      // Assert
+      expect(isCommentLiked).toEqual(false);
     });
 
-    it('should not throw an AuthorizationError when the user is authorized', async () => {
+    it('should return true if the comment has been liked', async () => {
       // Arrange
       const likeRepositoryPostgres = new LikeRepositoryPostgres(pool, {});
       await LikesTableTestHelper.addLike({});
 
-      // Action & Assert
-      await expect(likeRepositoryPostgres.verifyLikeAuthorization({
-        owner: 'user-123',
-        likeId: 'like-123',
-      }))
-        .resolves.not.toThrow(AuthorizationError);
+      // Action
+      const isCommentLiked = await likeRepositoryPostgres
+        .isCommentLiked({ owner: 'user-123', commentId: 'comment-123' });
+
+      // Assert
+      expect(isCommentLiked).toEqual(true);
     });
   });
 });

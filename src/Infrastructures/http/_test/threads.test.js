@@ -241,6 +241,16 @@ describe('/threads endpoint', () => {
         },
       });
 
+      await server.inject({
+        method: 'POST',
+        url: '/users',
+        payload: {
+          username: 'johndoe',
+          password: 'supersecret',
+          fullname: 'John Doe',
+        },
+      });
+
       /* add an authentication (login) & get the user's access token */
       const responseAuthenticationRofi = await server.inject({
         method: 'POST',
@@ -269,6 +279,20 @@ describe('/threads endpoint', () => {
         accessToken:
         ashleyAccessToken,
       } = (JSON.parse(responseAuthenticationAshley.payload)).data;
+
+      const responseAuthenticationJohn = await server.inject({
+        method: 'POST',
+        url: '/authentications',
+        payload: {
+          username: 'johndoe',
+          password: 'supersecret',
+        },
+      });
+
+      const {
+        accessToken:
+        johnAccessToken,
+      } = (JSON.parse(responseAuthenticationJohn.payload)).data;
 
       /* add a thread & get the thread's id */
       const responseThread = await server.inject({
@@ -321,6 +345,40 @@ describe('/threads endpoint', () => {
         },
       });
 
+      /* add some like to a comment */
+      await server.inject({
+        method: 'PUT',
+        url: `/threads/${threadId}/comments/${commentId1}/likes`,
+        headers: {
+          Authorization: `Bearer ${rofiAccessToken}`,
+        },
+      });
+
+      await server.inject({
+        method: 'PUT',
+        url: `/threads/${threadId}/comments/${commentId1}/likes`,
+        headers: {
+          Authorization: `Bearer ${ashleyAccessToken}`,
+        },
+      });
+
+      await server.inject({
+        method: 'PUT',
+        url: `/threads/${threadId}/comments/${commentId1}/likes`,
+        headers: {
+          Authorization: `Bearer ${johnAccessToken}`,
+        },
+      });
+
+      /* unlike the comment for user ashley */
+      await server.inject({
+        method: 'PUT',
+        url: `/threads/${threadId}/comments/${commentId1}/likes`,
+        headers: {
+          Authorization: `Bearer ${ashleyAccessToken}`,
+        },
+      });
+
       /* add some replies */
       await server.inject({
         method: 'POST',
@@ -370,6 +428,6 @@ describe('/threads endpoint', () => {
       const responseJson = JSON.parse(response.payload);
       expect(response).toHaveProperty('statusCode', 200);
       expect(responseJson).toHaveProperty('status', 'success');
-    }, 10000);
+    }, 20000);
   });
 });
