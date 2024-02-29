@@ -5,11 +5,15 @@ class LikeRepository {
     throw new Error('LIKE_REPOSITORY.METHOD_NOT_IMPLEMENTED');
   }
 
-  async deleteLikeByCommentIdAndOwner({ commentId, owner }) {
+  async deleteLikeByLikeId(likeId) {
     throw new Error('LIKE_REPOSITORY.METHOD_NOT_IMPLEMENTED');
   }
 
   async getLikeCountByCommentId(commentId) {
+    throw new Error('LIKE_REPOSITORY.METHOD_NOT_IMPLEMENTED');
+  }
+
+  async verifyLikeAuthorization({ owner, likeId }) {
     throw new Error('LIKE_REPOSITORY.METHOD_NOT_IMPLEMENTED');
   }
 }
