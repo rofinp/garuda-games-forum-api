@@ -23,10 +23,10 @@ class LikeRepositoryPostgres extends LikeRepository {
     return result.rows[0];
   }
 
-  async deleteLikeByLikeId(likeId) {
+  async deleteLikeByOwnerAndCommentId({ owner, commentId }) {
     const query = {
-      text: 'DELETE FROM likes WHERE id = $1',
-      values: [likeId],
+      text: 'DELETE FROM likes WHERE owner = $1 AND comment_id = $2',
+      values: [owner, commentId],
     };
 
     const result = await this._pool.query(query);
@@ -46,21 +46,16 @@ class LikeRepositoryPostgres extends LikeRepository {
     return result.rows;
   }
 
-  async verifyLikeAuthorization({ owner, likeId }) {
+  async isCommentLiked({ owner, commentId }) {
     const query = {
-      text: `SELECT likes.id, users.id AS owner
-             FROM likes
-             INNER JOIN users ON likes.owner = users.id
-             WHERE users.id = $1
-             AND likes.id = $2`,
-      values: [owner, likeId],
+      text: 'SELECT * FROM likes WHERE owner = $1 AND comment_id = $2',
+      values: [owner, commentId],
     };
-
     const result = await this._pool.query(query);
-
-    if (!result.rowCount) {
-      throw new AuthorizationError('tidak dapat mengakses sumber ini, harap login terlebih dahulu');
+    if (result.rowCount) {
+      return true;
     }
+    return false;
   }
 }
 
