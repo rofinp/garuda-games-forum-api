@@ -109,7 +109,7 @@ describe('LikeRepositoryPostgres', () => {
       const likeCount = await likeRepositoryPostgres.getLikeCountByCommentId('comment-123');
 
       // Assert
-      expect(likeCount).toStrictEqual(0);
+      expect(likeCount.length).toStrictEqual(0);
     });
 
     it('should return & count all likes for the comment', async () => {
@@ -143,7 +143,7 @@ describe('LikeRepositoryPostgres', () => {
       const countLikes = await likeRepositoryPostgres.getLikeCountByCommentId('comment-123');
 
       // Assert
-      expect(countLikes).toStrictEqual(2);
+      expect(countLikes.length).toStrictEqual(2);
     });
   });
 

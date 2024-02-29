@@ -43,7 +43,7 @@ class LikeRepositoryPostgres extends LikeRepository {
     };
 
     const result = await this._pool.query(query);
-    return result.rowCount;
+    return result.rows;
   }
 
   async verifyLikeAuthorization({ owner, likeId }) {

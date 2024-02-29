@@ -1,10 +1,13 @@
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable no-await-in-loop */
 class GetThreadUseCase {
-  constructor({ threadRepository, commentRepository, replyRepository }) {
+  constructor({
+    threadRepository, commentRepository, replyRepository, likeRepository,
+  }) {
     this._threadRepository = threadRepository;
     this._commentRepository = commentRepository;
     this._replyRepository = replyRepository;
+    this._likeRepository = likeRepository;
   }
 
   async execute(useCaseParams) {
@@ -20,7 +23,10 @@ class GetThreadUseCase {
       }
 
       let commentReplies = await this._replyRepository.getRepliesByCommentId(commentId);
+      let commentLikes = await this._likeRepository.getLikeCountByCommentId(commentId);
+
       commentReplies = commentReplies.filter((reply) => reply.comment_id === commentId);
+      commentLikes = commentLikes.filter((like) => like.comment_id === commentId);
 
       for (const reply of commentReplies) {
         if (reply.is_deleted) {
@@ -33,16 +39,19 @@ class GetThreadUseCase {
       }) => ({
         id, content, date, username,
       }));
+
+      comment.likeCount = commentLikes.length;
     }
 
     thread.comments = comments.map(({
-      id, username, date, replies, content,
+      id, username, date, replies, content, likeCount,
     }) => ({
       id,
       username,
       date,
       replies,
       content,
+      likeCount,
     }));
 
     return thread;
