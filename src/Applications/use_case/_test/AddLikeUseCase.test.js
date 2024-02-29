@@ -31,7 +31,7 @@ describe('The AddLikeUseCase class', () => {
     });
 
     // Action
-    await getAddLikeUseCase.execute(owner, commentId);
+    await getAddLikeUseCase.execute(owner, useCaseParams);
 
     // Assert
     expect(mockCommentRepository.verifyCommentExistance)
