@@ -1,6 +1,5 @@
 const LikeRepository = require('../../Domains/likes/LikeRepository');
 const NotFoundError = require('../../Commons/exceptions/NotFoundError');
-const AuthorizationError = require('../../Commons/exceptions/AuthorizationError');
 
 class LikeRepositoryPostgres extends LikeRepository {
   constructor(pool, idGenerator) {
