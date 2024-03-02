@@ -11,7 +11,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [18.x, 20.x]
+        node-version: [14.x]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     steps:
@@ -27,16 +27,6 @@ jobs:
           npm run test
         env:
           CI: true
-          # HOST: localhost
-          # PORT: 5000
-          # PGHOST: localhost
-          # PGPORT: 5432
-          # PGUSER: postgres
-          # PGPASSWORD: ImamMahdi1618
-          # PGDATABASE: forumapi_test
-          # ACCESS_TOKEN_KEY: secret
-          # REFRESH_TOKEN_KEY: terces
-          # ACCESS_TOKEN_AGE: 3600
           PGHOST_TEST: ${{ secrets.PGHOST_TEST }}
           PGUSER_TEST: ${{ secrets.PGUSER_TEST }}
           PGDATABASE_TEST: ${{ secrets.PGDATABASE_TEST }}
@@ -49,4 +39,3 @@ jobs:
           PGPORT: ${{ secrets.PGPORT_TEST }}
           ACCESS_TOKEN_KEY: ${{ secrets.ACCESS_TOKEN_KEY }}
           REFRESH_TOKEN_KEY: ${{ secrets.REFRESH_TOKEN_KEY }}
-          ACCESS_TOKEN_AGE: ${{ secrets.ACCESS_TOKEN_AGE }}
