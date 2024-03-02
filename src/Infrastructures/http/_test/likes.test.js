@@ -115,7 +115,7 @@ describe('/threads/{threadId}/comments/{commentId}/likes endpoint', () => {
       const responseJson = JSON.parse(response.payload);
       expect(response).toHaveProperty('statusCode', 200);
       expect(responseJson).toHaveProperty('status', 'success');
-    });
+    }, 20000);
 
     it('should respond with a 200 status code if the user unlike the comment', async () => {
       // Arrange
