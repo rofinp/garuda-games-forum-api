@@ -27,16 +27,6 @@ jobs:
           npm run test
         env:
           CI: true
-          # HOST: localhost
-          # PORT: 5000
-          # PGHOST: localhost
-          # PGPORT: 5432
-          # PGUSER: postgres
-          # PGPASSWORD: ImamMahdi1618
-          # PGDATABASE: forumapi_test
-          # ACCESS_TOKEN_KEY: secret
-          # REFRESH_TOKEN_KEY: terces
-          # ACCESS_TOKEN_AGE: 3600
           PGHOST_TEST: ${{ secrets.PGHOST_TEST }}
           PGUSER_TEST: ${{ secrets.PGUSER_TEST }}
           PGDATABASE_TEST: ${{ secrets.PGDATABASE_TEST }}
