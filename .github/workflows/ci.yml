@@ -11,7 +11,7 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [14.x, 18.x, 20.x]
+        node-version: [18.x, 20.x]
         # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
 
     services:
@@ -43,8 +43,8 @@ jobs:
           npm run test
         env:
           CI: true
-          HOST: ec2-43-218-104-191.ap-southeast-3.compute.amazonaws.com
-          PORT: 5000
+          HOST: ${{ secrets.HOST }}
+          PORT: ${{ secrets.PORT }}
           PGHOST: ${{ secrets.PGHOST }}
           PGUSER: ${{ secrets.PGUSER }}
           PGDATABASE: ${{ secrets.PGDATABASE }}
