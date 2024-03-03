@@ -27,7 +27,7 @@ const createServer = async (container) => {
     },
   ]);
 
-  // mendefinisikan strategy autentikasi jwt
+  // mendefinisikan strategy autentikasi JWT
   server.auth.strategy('forumapi_jwt', 'jwt', {
     keys: process.env.ACCESS_TOKEN_KEY,
     verify: {
