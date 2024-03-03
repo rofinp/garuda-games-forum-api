@@ -21,7 +21,7 @@ describe('/threads/{threadId}/comments/{commentId}/likes endpoint', () => {
   });
 
   describe('when PUT /threads/{threadId}/comments/{commentId}/likes', () => {
-    it('should respond with a 200 status code if the user like the comment', async () => {
+    it('should respond with a 200 status code if the user liked the comment', async () => {
       // Arrange
       const server = await createServer(container);
 
@@ -117,7 +117,7 @@ describe('/threads/{threadId}/comments/{commentId}/likes endpoint', () => {
       expect(responseJson).toHaveProperty('status', 'success');
     }, 50000);
 
-    it('should respond with a 200 status code if the user unlike the comment', async () => {
+    it('should respond with a 200 status code if the user unliked the comment', async () => {
       // Arrange
       const server = await createServer(container);
 
