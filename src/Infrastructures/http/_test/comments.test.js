@@ -81,7 +81,7 @@ describe('/threads/{threadId}/comments endpoint', () => {
       expect(responseJson.data.addedComment).toBeDefined();
     });
 
-    it('should respond with a 400 status code when the comment payload does not contain required property', async () => {
+    it('should respond with a 400 status code when the comment payload does not contain the required property', async () => {
       // Arrange
       const server = await createServer(container);
 
@@ -142,7 +142,7 @@ describe('/threads/{threadId}/comments endpoint', () => {
       expect(responseJson.message).toEqual('tidak dapat membuat komentar baru karena properti yang dibutuhkan tidak ada');
     });
 
-    it('should respond with a 400 status code when the comment payload does not meet data type specifications', async () => {
+    it('should respond with a 400 status code when the comment payload does not meet the data type specifications', async () => {
       // Arrange
       const server = await createServer(container);
 
