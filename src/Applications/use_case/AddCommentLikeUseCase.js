@@ -1,4 +1,4 @@
-class AddLikeUseCase {
+class AddCommentLikeUseCase {
   constructor({ likeRepository, commentRepository }) {
     this._likeRepository = likeRepository;
     this._commentRepository = commentRepository;
@@ -17,4 +17,4 @@ class AddLikeUseCase {
   }
 }
 
-module.exports = AddLikeUseCase;
+module.exports = AddCommentLikeUseCase;

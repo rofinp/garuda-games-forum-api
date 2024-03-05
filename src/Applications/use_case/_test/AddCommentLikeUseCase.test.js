@@ -1,4 +1,4 @@
-const AddLikeUseCase = require('../AddLikeUseCase');
+const AddCommentLikeUseCase = require('../AddCommentLikeUseCase');
 const LikeRepository = require('../../../Domains/likes/LikeRepository');
 const CommentRepository = require('../../../Domains/comments/CommentRepository');
 
@@ -27,13 +27,13 @@ describe('The AddLikeUseCase class', () => {
       .mockImplementation(() => Promise.resolve({ id: 'like-123' }));
 
     /** create the use case instances */
-    const getAddLikeUseCase = new AddLikeUseCase({
+    const getAddCommentLikeUseCase = new AddCommentLikeUseCase({
       likeRepository: mockLikeRepository,
       commentRepository: mockCommentRepository,
     });
 
     // Action
-    await getAddLikeUseCase.execute(owner, useCaseParams);
+    await getAddCommentLikeUseCase.execute(owner, useCaseParams);
 
     // Assert
     expect(mockCommentRepository.verifyCommentExistance)
@@ -69,13 +69,13 @@ describe('The AddLikeUseCase class', () => {
       .mockImplementation(() => Promise.resolve());
 
     /** create the use case instances */
-    const getAddLikeUseCase = new AddLikeUseCase({
+    const getAddCommentLikeUseCase = new AddCommentLikeUseCase({
       likeRepository: mockLikeRepository,
       commentRepository: mockCommentRepository,
     });
 
     // Action
-    await getAddLikeUseCase.execute(owner, useCaseParams);
+    await getAddCommentLikeUseCase.execute(owner, useCaseParams);
 
     // Assert
     expect(mockCommentRepository.verifyCommentExistance)
