@@ -30,6 +30,9 @@ const CommentLikeRepositoryPostgres = require('./repository/CommentLikeRepositor
 const ThreadLikeRepository = require('../Domains/likes/ThreadLikeRepository');
 const ThreadLikeRepositoryPostgres = require('./repository/ThreadLikeRepositoryPostgres');
 
+const ReplyLikeRepository = require('../Domains/likes/ReplyLikeRepository');
+const ReplyLikeRepositoryPostgres = require('./repository/ReplyLikeRepositoryPostgres');
+
 const PasswordHash = require('../Applications/security/PasswordHash');
 const BcryptPasswordHash = require('./security/BcryptPasswordHash');
 const AuthenticationTokenManager = require('../Applications/security/AuthenticationTokenManager');
@@ -53,6 +56,7 @@ const DeleteReplyUseCase = require('../Applications/use_case/DeleteReplyUseCase'
 
 const AddCommentLikeUseCase = require('../Applications/use_case/AddCommentLikeUseCase');
 const AddThreadLikeUseCase = require('../Applications/use_case/AddThreadLikeUseCase');
+const AddReplyLikeUseCase = require('../Applications/use_case/AddReplyLikeUseCase');
 
 // creating container
 const container = createContainer();
@@ -143,6 +147,20 @@ container.register([
   {
     key: ThreadLikeRepository.name,
     Class: ThreadLikeRepositoryPostgres,
+    parameter: {
+      dependencies: [
+        {
+          concrete: pool,
+        },
+        {
+          concrete: nanoid,
+        },
+      ],
+    },
+  },
+  {
+    key: ReplyLikeRepository.name,
+    Class: ReplyLikeRepositoryPostgres,
     parameter: {
       dependencies: [
         {
@@ -291,6 +309,10 @@ container.register([
           name: 'threadLikeRepository',
           internal: ThreadLikeRepository.name,
         },
+        {
+          name: 'replyLikeRepository',
+          internal: ReplyLikeRepository.name,
+        },
       ],
     },
   },
@@ -384,6 +406,23 @@ container.register([
         {
           name: 'threadRepository',
           internal: ThreadRepository.name,
+        },
+      ],
+    },
+  },
+  {
+    key: AddReplyLikeUseCase.name,
+    Class: AddReplyLikeUseCase,
+    parameter: {
+      injectType: 'destructuring',
+      dependencies: [
+        {
+          name: 'replyLikeRepository',
+          internal: ReplyLikeRepository.name,
+        },
+        {
+          name: 'replyRepository',
+          internal: ReplyRepository.name,
         },
       ],
     },

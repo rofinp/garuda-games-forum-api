@@ -3,13 +3,14 @@
 class GetThreadUseCase {
   constructor({
     threadRepository, commentRepository, replyRepository,
-    commentLikeRepository, threadLikeRepository,
+    commentLikeRepository, threadLikeRepository, replyLikeRepository,
   }) {
     this._threadRepository = threadRepository;
     this._commentRepository = commentRepository;
     this._replyRepository = replyRepository;
     this._commentLikeRepository = commentLikeRepository;
     this._threadLikeRepository = threadLikeRepository;
+    this._replyLikeRepository = replyLikeRepository;
   }
 
   async execute(threadId) {
@@ -33,15 +34,20 @@ class GetThreadUseCase {
       commentLikeCounts = commentLikeCounts.filter((like) => like.comment_id === commentId);
 
       for (const reply of commentReplies) {
+        const { id: replyId } = reply;
         if (reply.is_deleted) {
           reply.content = '**balasan telah dihapus**';
         }
+
+        let replyLikeCounts = await this._replyLikeRepository.getLikeCountsByReplyId(replyId);
+        replyLikeCounts = replyLikeCounts.filter((like) => like.reply_id === replyId);
+        reply.likeCounts = replyLikeCounts.length;
       }
 
       comment.replies = commentReplies.map(({
-        id, content, date, username,
+        id, content, date, username, likeCounts,
       }) => ({
-        id, content, date, username,
+        id, content, date, username, likeCounts,
       }));
 
       comment.likeCounts = commentLikeCounts.length;
