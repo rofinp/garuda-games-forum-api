@@ -1,5 +1,6 @@
 /* eslint-disable no-restricted-syntax */
 /* eslint-disable no-await-in-loop */
+
 class GetThreadUseCase {
   constructor({
     threadRepository, commentRepository, replyRepository,
@@ -17,8 +18,8 @@ class GetThreadUseCase {
     await this._threadRepository.verifyThreadExistance(threadId);
     const thread = await this._threadRepository.getThreadById(threadId);
     const comments = await this._commentRepository.getCommentsByThreadId(threadId);
-    const threadLikeCounts = await this._threadLikeRepository.getLikeCountsByThreadId(threadId);
 
+    const threadLikeCounts = await this._threadLikeRepository.getLikeCountsByThreadId(threadId);
     thread.likeCounts = threadLikeCounts.length;
 
     for (const comment of comments) {
@@ -28,9 +29,9 @@ class GetThreadUseCase {
       }
 
       let commentReplies = await this._replyRepository.getRepliesByCommentId(commentId);
-      let commentLikeCounts = await this._commentLikeRepository.getLikeCountsByCommentId(commentId);
-
       commentReplies = commentReplies.filter((reply) => reply.comment_id === commentId);
+
+      let commentLikeCounts = await this._commentLikeRepository.getLikeCountsByCommentId(commentId);
       commentLikeCounts = commentLikeCounts.filter((like) => like.comment_id === commentId);
 
       for (const reply of commentReplies) {
@@ -45,16 +46,20 @@ class GetThreadUseCase {
       }
 
       comment.replies = commentReplies.map(({
-        id, content, date, username, likeCounts,
+        id, content, created_at: date, username, likeCounts,
       }) => ({
-        id, content, date, username, likeCounts,
+        id,
+        content,
+        date,
+        username,
+        likeCounts,
       }));
 
       comment.likeCounts = commentLikeCounts.length;
     }
 
     thread.comments = comments.map(({
-      id, username, date, replies, content, likeCounts,
+      id, username, created_at: date, replies, content, likeCounts,
     }) => ({
       id,
       username,

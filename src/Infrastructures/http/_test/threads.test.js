@@ -479,7 +479,6 @@ describe('/threads endpoint', () => {
 
       // Assert
       const responseJson = JSON.parse(response.payload);
-      console.debug(responseJson.data.thread);
       expect(response).toHaveProperty('statusCode', 200);
       expect(responseJson).toHaveProperty('status', 'success');
     }, 20000);

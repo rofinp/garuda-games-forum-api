@@ -21,8 +21,9 @@ describe('The GetThreadUseCase', () => {
       id: threadId,
       title: 'The Almonds',
       body: 'I love you so much Almond',
+      created_at: '2023-03-03',
+      updated_at: '2023-03-03',
       username: 'rofinugraha',
-      date: '2023-03-03',
     };
 
     const threadComments = [
@@ -31,7 +32,7 @@ describe('The GetThreadUseCase', () => {
         thread_id: threadId,
         content: 'Almonds, what a comment',
         username: 'rofinugraha',
-        date: '2024-04-04',
+        created_at: '2024-04-04',
         is_deleted: false,
       },
       {
@@ -39,7 +40,7 @@ describe('The GetThreadUseCase', () => {
         thread_id: threadId,
         content: 'Hazelnut, what a comment',
         username: 'ashleygraham',
-        date: '2024-04-04',
+        created_at: '2024-04-04',
         is_deleted: true,
       },
     ];
@@ -50,7 +51,7 @@ describe('The GetThreadUseCase', () => {
         comment_id: 'comment-123',
         content: 'This is your mom reply',
         username: 'rofinugraha',
-        date: '2021-08-08T07:19:09.775Z',
+        created_at: '2021-08-08T07:19:09.775Z',
         is_deleted: true,
       },
       {
@@ -58,7 +59,7 @@ describe('The GetThreadUseCase', () => {
         comment_id: 'comment-123',
         content: 'This is your dad reply',
         username: 'ashleygraham',
-        date: '2021-08-08T07:19:09.775Z',
+        created_at: '2021-08-08T07:19:09.775Z',
         is_deleted: false,
       },
     ];
@@ -167,9 +168,13 @@ describe('The GetThreadUseCase', () => {
       }
 
       comment.replies = replies.map(({
-        id, content, date, username, likeCounts,
+        id, content, created_at: date, username, likeCounts,
       }) => ({
-        id, content, date, username, likeCounts,
+        id,
+        content,
+        date,
+        username,
+        likeCounts,
       }));
 
       comment.likeCounts = commentLikeCounts.length;
@@ -177,7 +182,7 @@ describe('The GetThreadUseCase', () => {
 
     /* Hapus beberapa properti dari setiap objek dalam array comments */
     const formattedComments = threadComments.map(({
-      id, username, date, replies, content, likeCounts,
+      id, username, created_at: date, replies, content, likeCounts,
     }) => ({
       id,
       username,
@@ -186,6 +191,8 @@ describe('The GetThreadUseCase', () => {
       content,
       likeCounts,
     }));
+
+    thread.comments = formattedComments;
 
     // Action
     const detailThread = await getGetThreadUseCase.execute(threadId);
