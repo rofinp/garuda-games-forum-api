@@ -2,7 +2,7 @@ const AddCommentLikeUseCase = require('../AddCommentLikeUseCase');
 const CommentLikeRepository = require('../../../Domains/likes/CommentLikeRepository');
 const CommentRepository = require('../../../Domains/comments/CommentRepository');
 
-describe('The AddLikeUseCase class', () => {
+describe('The AddCommentLikeUseCase class', () => {
   it('should orchestrates the addLike action correctly if the comment has not liked', async () => {
     // Arrange
     const useCaseParams = {
