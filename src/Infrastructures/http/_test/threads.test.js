@@ -309,6 +309,23 @@ describe('/threads endpoint', () => {
 
       const { id: threadId } = (JSON.parse(responseThread.payload)).data.addedThread;
 
+      /* add some likes to the thread */
+      await server.inject({
+        method: 'PUT',
+        url: `/threads/${threadId}/likes`,
+        headers: {
+          Authorization: `Bearer ${ashleyAccessToken}`,
+        },
+      });
+
+      await server.inject({
+        method: 'PUT',
+        url: `/threads/${threadId}/likes`,
+        headers: {
+          Authorization: `Bearer ${johnAccessToken}`,
+        },
+      });
+
       /* add a comment to the thread */
       const responseComment1 = await server.inject({
         method: 'POST',
@@ -380,7 +397,7 @@ describe('/threads endpoint', () => {
       });
 
       /* add some replies */
-      await server.inject({
+      const responseReply1 = await server.inject({
         method: 'POST',
         url: `/threads/${threadId}/comments/${commentId1}/replies`,
         payload: {
@@ -391,6 +408,8 @@ describe('/threads endpoint', () => {
           Authorization: `Bearer ${rofiAccessToken}`,
         },
       });
+
+      const { id: replyId1 } = (JSON.parse(responseReply1.payload)).data.addedReply;
 
       const responseReply2 = await server.inject({
         method: 'POST',
@@ -412,6 +431,40 @@ describe('/threads endpoint', () => {
         url: `/threads/${threadId}/comments/${commentId1}/replies/${replyId2}`,
         headers: {
           Authorization: `Bearer ${ashleyAccessToken}`,
+        },
+      });
+
+      /* add some likes to reply1 */
+      await server.inject({
+        method: 'PUT',
+        url: `/threads/${threadId}/comments/${commentId1}/replies/${replyId1}/likes`,
+        headers: {
+          Authorization: `Bearer ${ashleyAccessToken}`,
+        },
+      });
+
+      await server.inject({
+        method: 'PUT',
+        url: `/threads/${threadId}/comments/${commentId1}/replies/${replyId1}/likes`,
+        headers: {
+          Authorization: `Bearer ${johnAccessToken}`,
+        },
+      });
+
+      await server.inject({
+        method: 'PUT',
+        url: `/threads/${threadId}/comments/${commentId1}/replies/${replyId1}/likes`,
+        headers: {
+          Authorization: `Bearer ${rofiAccessToken}`,
+        },
+      });
+
+      /* unlike a reply for user rofi */
+      await server.inject({
+        method: 'PUT',
+        url: `/threads/${threadId}/comments/${commentId1}/replies/${replyId1}/likes`,
+        headers: {
+          Authorization: `Bearer ${rofiAccessToken}`,
         },
       });
 
