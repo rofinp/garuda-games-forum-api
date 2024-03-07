@@ -48,7 +48,7 @@ describe('The AddReplyUseCase class', () => {
 
     // Action
     const registeredReply = await getAddReplyUseCase
-      .execute(owner, useCaseParams, useCasePayload);
+      .execute(owner, threadId, commentId, useCasePayload);
 
     // Assert
     expect(registeredReply).toStrictEqual(mockRegisteredReply);

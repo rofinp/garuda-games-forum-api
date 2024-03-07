@@ -24,8 +24,8 @@ const CommentRepositoryPostgres = require('./repository/CommentRepositoryPostgre
 const ReplyRepository = require('../Domains/replies/ReplyRepository');
 const ReplyRepositoryPostgres = require('./repository/ReplyRepositoryPostgres');
 
-const LikeRepository = require('../Domains/likes/LikeRepository');
-const LikeRepositoryPostgres = require('./repository/LikeRepositoryPostgres');
+const CommentLikeRepository = require('../Domains/likes/CommentLikeRepository');
+const CommentLikeRepositoryPostgres = require('./repository/CommentLikeRepositoryPostgres');
 
 const PasswordHash = require('../Applications/security/PasswordHash');
 const BcryptPasswordHash = require('./security/BcryptPasswordHash');
@@ -123,8 +123,8 @@ container.register([
     },
   },
   {
-    key: LikeRepository.name,
-    Class: LikeRepositoryPostgres,
+    key: CommentLikeRepository.name,
+    Class: CommentLikeRepositoryPostgres,
     parameter: {
       dependencies: [
         {
@@ -266,8 +266,8 @@ container.register([
           internal: ReplyRepository.name,
         },
         {
-          name: 'likeRepository',
-          internal: LikeRepository.name,
+          name: 'commentLikeRepository',
+          internal: CommentLikeRepository.name,
         },
       ],
     },
@@ -339,8 +339,8 @@ container.register([
       injectType: 'destructuring',
       dependencies: [
         {
-          name: 'likeRepository',
-          internal: LikeRepository.name,
+          name: 'commentLikeRepository',
+          internal: CommentLikeRepository.name,
         },
         {
           name: 'commentRepository',
