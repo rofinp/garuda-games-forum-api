@@ -3,7 +3,7 @@ const ThreadLikeRepository = require('../../../Domains/likes/ThreadLikeRepositor
 const ThreadRepository = require('../../../Domains/threads/ThreadRepository');
 
 describe('The AddThreadLikeUseCase class', () => {
-  it('should orchestrates the addLike action correctly if the comment has not liked', async () => {
+  it('should orchestrates the addLike action correctly if the thread has not liked', async () => {
     // Arrange
     const useCaseParams = {
       threadId: 'thread-123',
@@ -44,7 +44,7 @@ describe('The AddThreadLikeUseCase class', () => {
       .toHaveBeenCalledWith(owner, threadId);
   });
 
-  it('should orchestrates the deleteLike action correctly if the comment has been liked', async () => {
+  it('should orchestrates the deleteLike action correctly if the thread has been liked', async () => {
     // Arrange
     const useCaseParams = {
       threadId: 'thread-123',
