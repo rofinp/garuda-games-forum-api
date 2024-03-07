@@ -2,6 +2,7 @@ const ThreadRepository = require('../../../Domains/threads/ThreadRepository');
 const CommentRepository = require('../../../Domains/comments/CommentRepository');
 const ReplyRepository = require('../../../Domains/replies/ReplyRepository');
 const CommentLikeRepository = require('../../../Domains/likes/CommentLikeRepository');
+const ThreadLikeRepository = require('../../../Domains/likes/ThreadLikeRepository');
 const GetThreadUseCase = require('../GetThreadUseCase');
 
 /* eslint-disable no-restricted-syntax */
@@ -74,23 +75,42 @@ describe('The GetThreadUseCase', () => {
       },
     ];
 
+    const threadLikes = [
+      {
+        id: 'like-123',
+        thread_id: 'thread-123',
+        owner: 'user-123',
+      },
+      {
+        id: 'like-123',
+        thread_id: 'thread-123',
+        owner: 'user-321',
+      },
+    ];
+
     /** creating dependencies of use case */
     const mockThreadRepository = new ThreadRepository();
     const mockCommentRepository = new CommentRepository();
     const mockReplyRepository = new ReplyRepository();
     const mockCommentLikeRepository = new CommentLikeRepository();
+    const mockThreadLikeRepository = new ThreadLikeRepository();
 
     /** mocking required function */
     mockThreadRepository.verifyThreadExistance = jest.fn()
       .mockImplementation(() => Promise.resolve());
     mockThreadRepository.getThreadById = jest.fn()
       .mockImplementation(() => Promise.resolve(thread));
+
     mockCommentRepository.getCommentsByThreadId = jest.fn()
       .mockImplementation(() => Promise.resolve(threadComments));
     mockReplyRepository.getRepliesByCommentId = jest.fn()
       .mockImplementation(() => Promise.resolve(commentReplies));
+
     mockCommentLikeRepository.getLikeCountsByCommentId = jest.fn()
       .mockImplementation(() => Promise.resolve(commentLikes));
+
+    mockThreadLikeRepository.getLikeCountsByThreadId = jest.fn()
+      .mockImplementation(() => Promise.resolve(threadLikes));
 
     /** creating the use case instance */
     const getGetThreadUseCase = new GetThreadUseCase({
@@ -98,7 +118,11 @@ describe('The GetThreadUseCase', () => {
       commentRepository: mockCommentRepository,
       replyRepository: mockReplyRepository,
       commentLikeRepository: mockCommentLikeRepository,
+      threadLikeRepository: mockThreadLikeRepository,
     });
+
+    const threadLikeCounts = await mockThreadLikeRepository.getLikeCountsByThreadId(threadId);
+    thread.likeCounts = threadLikeCounts.length;
 
     for (const comment of threadComments) {
       const { id: commentId } = comment;
@@ -146,14 +170,15 @@ describe('The GetThreadUseCase', () => {
       .toHaveBeenCalledWith(threadId);
     expect(mockThreadRepository.getThreadById)
       .toHaveBeenCalledWith(threadId);
+    expect(mockThreadLikeRepository.getLikeCountsByThreadId)
+      .toHaveBeenCalledWith('thread-123');
 
     expect(mockCommentRepository.getCommentsByThreadId)
       .toHaveBeenCalledWith(threadId);
-
-    expect(mockReplyRepository.getRepliesByCommentId)
+    expect(mockCommentLikeRepository.getLikeCountsByCommentId)
       .toHaveBeenCalledWith('comment-123');
 
-    expect(mockCommentLikeRepository.getLikeCountsByCommentId)
+    expect(mockReplyRepository.getRepliesByCommentId)
       .toHaveBeenCalledWith('comment-123');
 
     expect(detailThread).toEqual({
@@ -162,8 +187,10 @@ describe('The GetThreadUseCase', () => {
     });
 
     expect(detailThread).toHaveProperty('comments');
+    expect(detailThread).toHaveProperty('likeCounts');
 
     detailThread.comments.forEach((comment) => {
+      expect(comment).toHaveProperty('likeCounts');
       expect(comment).toHaveProperty('replies');
     });
   });

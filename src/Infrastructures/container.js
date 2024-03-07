@@ -27,6 +27,9 @@ const ReplyRepositoryPostgres = require('./repository/ReplyRepositoryPostgres');
 const CommentLikeRepository = require('../Domains/likes/CommentLikeRepository');
 const CommentLikeRepositoryPostgres = require('./repository/CommentLikeRepositoryPostgres');
 
+const ThreadLikeRepository = require('../Domains/likes/ThreadLikeRepository');
+const ThreadLikeRepositoryPostgres = require('./repository/ThreadLikeRepositoryPostgres');
+
 const PasswordHash = require('../Applications/security/PasswordHash');
 const BcryptPasswordHash = require('./security/BcryptPasswordHash');
 const AuthenticationTokenManager = require('../Applications/security/AuthenticationTokenManager');
@@ -49,6 +52,7 @@ const AddReplyUseCase = require('../Applications/use_case/AddReplyUseCase');
 const DeleteReplyUseCase = require('../Applications/use_case/DeleteReplyUseCase');
 
 const AddCommentLikeUseCase = require('../Applications/use_case/AddCommentLikeUseCase');
+const AddThreadLikeUseCase = require('../Applications/use_case/AddThreadLikeUseCase');
 
 // creating container
 const container = createContainer();
@@ -125,6 +129,20 @@ container.register([
   {
     key: CommentLikeRepository.name,
     Class: CommentLikeRepositoryPostgres,
+    parameter: {
+      dependencies: [
+        {
+          concrete: pool,
+        },
+        {
+          concrete: nanoid,
+        },
+      ],
+    },
+  },
+  {
+    key: ThreadLikeRepository.name,
+    Class: ThreadLikeRepositoryPostgres,
     parameter: {
       dependencies: [
         {
@@ -269,6 +287,10 @@ container.register([
           name: 'commentLikeRepository',
           internal: CommentLikeRepository.name,
         },
+        {
+          name: 'threadLikeRepository',
+          internal: ThreadLikeRepository.name,
+        },
       ],
     },
   },
@@ -345,6 +367,23 @@ container.register([
         {
           name: 'commentRepository',
           internal: CommentRepository.name,
+        },
+      ],
+    },
+  },
+  {
+    key: AddThreadLikeUseCase.name,
+    Class: AddThreadLikeUseCase,
+    parameter: {
+      injectType: 'destructuring',
+      dependencies: [
+        {
+          name: 'threadLikeRepository',
+          internal: ThreadLikeRepository.name,
+        },
+        {
+          name: 'threadRepository',
+          internal: ThreadRepository.name,
         },
       ],
     },
