@@ -1,81 +1,79 @@
-const LikeRepositoryPostgres = require('../LikeRepositoryPostgres');
-const LikeRepository = require('../../../Domains/likes/LikeRepository');
+const CommentLikeRepositoryPostgres = require('../CommentLikeRepositoryPostgres');
+const CommentLikeRepository = require('../../../Domains/likes/CommentLikeRepository');
 const ThreadsTableTestHelper = require('../../../../tests/ThreadsTableTestHelper');
 const UsersTableTestHelper = require('../../../../tests/UsersTableTestHelper');
 const CommentsTableTestHelper = require('../../../../tests/CommentsTableTestHelper');
-const LikesTableTestHelper = require('../../../../tests/LikesTableTestHelper');
+const CommentLikesTableTestHelper = require('../../../../tests/CommentLikesTableTestHelper');
 const NotFoundError = require('../../../Commons/exceptions/NotFoundError');
 const pool = require('../../database/postgres/pool');
 
-describe('LikeRepositoryPostgres', () => {
-  it('should be instance of LikeRepository domain', async () => {
+describe('CommentLikeRepositoryPostgres', () => {
+  it('should be instance of CommentLikeRepository domain', async () => {
     // Arrange
-    const likeRepositoryPostgres = new LikeRepositoryPostgres({}, {});
+    const commentLikeRepositoryPostgres = new CommentLikeRepositoryPostgres({}, {});
 
     // Action & Assert
-    expect(likeRepositoryPostgres).toBeInstanceOf(LikeRepository);
+    expect(commentLikeRepositoryPostgres).toBeInstanceOf(CommentLikeRepository);
   });
 
   beforeEach(async () => {
     await UsersTableTestHelper.addUser({
       id: 'user-123',
       username: 'rofinugraha',
+      fullname: 'Rofi Nugraha',
     });
 
-    await ThreadsTableTestHelper.addThread({
-      id: 'thread-123',
-      owner: 'user-123',
-    });
+    await ThreadsTableTestHelper.addThread({});
 
-    await CommentsTableTestHelper.addComment({
-      id: 'comment-123',
-      owner: 'user-123',
-    });
+    await CommentsTableTestHelper.addComment({});
   });
 
   afterEach(async () => {
     await ThreadsTableTestHelper.cleanTable();
     await UsersTableTestHelper.cleanTable();
     await CommentsTableTestHelper.cleanTable();
-    await LikesTableTestHelper.cleanTable();
+    await CommentLikesTableTestHelper.cleanTable();
   });
 
   afterAll(async () => {
     await pool.end();
   });
 
-  describe('addLike function', () => {
+  describe('addCommentLike function', () => {
     it('should add a like to the database', async () => {
       // Arrange
       const commentId = 'comment-123';
       const owner = 'user-123';
       const fakeIdGenerator = () => '123';
-      const likeRepositoryPostgres = new LikeRepositoryPostgres(pool, fakeIdGenerator);
+      const commentLikeRepositoryPostgres = new CommentLikeRepositoryPostgres(
+        pool,
+        fakeIdGenerator,
+      );
 
       // Action
-      const registeredLike = await likeRepositoryPostgres.addLike(owner, commentId);
+      const registeredLike = await commentLikeRepositoryPostgres.addCommentLike(owner, commentId);
 
       // Assert
-      const getLike = await LikesTableTestHelper.findLikeById(registeredLike.id);
+      const getCommentLikes = await CommentLikesTableTestHelper
+        .findCommentLikeById(registeredLike.id);
 
       expect(registeredLike).toStrictEqual({
         id: 'like-123',
       });
-      expect(getLike).toStrictEqual({
-        id: 'like-123',
-        comment_id: commentId,
-        owner,
-      });
+      expect(getCommentLikes).toHaveProperty('id', 'like-123');
+      expect(getCommentLikes).toHaveProperty('comment_id', commentId);
+      expect(getCommentLikes).toHaveProperty('owner', owner);
+      expect(getCommentLikes).toHaveProperty('liked_at');
     });
   });
 
   describe('deleteLikeByOwnerAndCommentId function', () => {
     it('should throw a NotFoundError when the like does not exist or is not found', async () => {
       // Arrange
-      const likeRepositoryPostgres = new LikeRepositoryPostgres(pool, {});
+      const commentLikeRepositoryPostgres = new CommentLikeRepositoryPostgres(pool, {});
 
       // Action & Assert
-      await expect(likeRepositoryPostgres.deleteLikeByOwnerAndCommentId({
+      await expect(commentLikeRepositoryPostgres.deleteLikeByOwnerAndCommentId({
         owner: 'user-123',
         commentId: 'comment-123',
       }))
@@ -84,42 +82,42 @@ describe('LikeRepositoryPostgres', () => {
 
     it('should delete the like if it exists or is found', async () => {
       // Arrange
-      const likeRepositoryPostgres = new LikeRepositoryPostgres(pool, {});
+      const commentLikeRepositoryPostgres = new CommentLikeRepositoryPostgres(pool, {});
       const like = {
         id: 'like-123',
         commentId: 'comment-123',
         owner: 'user-123',
       };
 
-      await LikesTableTestHelper.addLike(like);
+      await CommentLikesTableTestHelper.addCommentLike(like);
 
       // Action
-      await likeRepositoryPostgres.deleteLikeByOwnerAndCommentId({
+      await commentLikeRepositoryPostgres.deleteLikeByOwnerAndCommentId({
         owner: like.owner,
         commentId: like.commentId,
       });
 
       // Assert
-      const getLike = await LikesTableTestHelper.findLikeById(like.id);
-      expect(getLike).toBeUndefined();
+      const getCommentLike = await CommentLikesTableTestHelper.findCommentLikeById(like.id);
+      expect(getCommentLike).toBeUndefined();
     });
   });
 
-  describe('getLikeCountByCommentId function', () => {
+  describe('getLikeCountsByCommentId function', () => {
     it('should return a number of 0 when the like do not exist for the comment', async () => {
       // Arrange
-      const likeRepositoryPostgres = new LikeRepositoryPostgres(pool, {});
+      const commentLikeRepositoryPostgres = new CommentLikeRepositoryPostgres(pool, {});
 
       // Action
-      const likeCount = await likeRepositoryPostgres.getLikeCountByCommentId('comment-123');
+      const likeCounts = await commentLikeRepositoryPostgres.getLikeCountsByCommentId('comment-123');
 
       // Assert
-      expect(likeCount.length).toStrictEqual(0);
+      expect(likeCounts.length).toStrictEqual(0);
     });
 
     it('should return & count all likes for the comment', async () => {
       // Arrange
-      const likeRepositoryPostgres = new LikeRepositoryPostgres(pool, {});
+      const commentLikeRepositoryPostgres = new CommentLikeRepositoryPostgres(pool, {});
 
       /* add second user to the database */
       await UsersTableTestHelper.addUser({
@@ -141,24 +139,24 @@ describe('LikeRepositoryPostgres', () => {
         owner: 'user-321',
       };
 
-      await LikesTableTestHelper.addLike(firstLike);
-      await LikesTableTestHelper.addLike(secondLike);
+      await CommentLikesTableTestHelper.addCommentLike(firstLike);
+      await CommentLikesTableTestHelper.addCommentLike(secondLike);
 
       // Action
-      const countLikes = await likeRepositoryPostgres.getLikeCountByCommentId('comment-123');
+      const likeCounts = await commentLikeRepositoryPostgres.getLikeCountsByCommentId('comment-123');
 
       // Assert
-      expect(countLikes.length).toStrictEqual(2);
+      expect(likeCounts.length).toStrictEqual(2);
     });
   });
 
   describe('isCommentLiked function', () => {
     it('should return false if the comment has not liked', async () => {
       // Arrange
-      const likeRepositoryPostgres = new LikeRepositoryPostgres(pool, {});
+      const commentLikeRepositoryPostgres = new CommentLikeRepositoryPostgres(pool, {});
 
       // Action
-      const isCommentLiked = await likeRepositoryPostgres
+      const isCommentLiked = await commentLikeRepositoryPostgres
         .isCommentLiked({ owner: 'user-123', commentId: 'comment-123' });
 
       // Assert
@@ -167,11 +165,11 @@ describe('LikeRepositoryPostgres', () => {
 
     it('should return true if the comment has been liked', async () => {
       // Arrange
-      const likeRepositoryPostgres = new LikeRepositoryPostgres(pool, {});
-      await LikesTableTestHelper.addLike({});
+      const commentLikeRepositoryPostgres = new CommentLikeRepositoryPostgres(pool, {});
+      await CommentLikesTableTestHelper.addCommentLike({});
 
       // Action
-      const isCommentLiked = await likeRepositoryPostgres
+      const isCommentLiked = await commentLikeRepositoryPostgres
         .isCommentLiked({ owner: 'user-123', commentId: 'comment-123' });
 
       // Assert

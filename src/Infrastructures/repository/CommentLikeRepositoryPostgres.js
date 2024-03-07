@@ -1,18 +1,18 @@
-const LikeRepository = require('../../Domains/likes/LikeRepository');
+const CommentLikeRepository = require('../../Domains/likes/CommentLikeRepository');
 const NotFoundError = require('../../Commons/exceptions/NotFoundError');
 
-class LikeRepositoryPostgres extends LikeRepository {
+class CommentLikeRepositoryPostgres extends CommentLikeRepository {
   constructor(pool, idGenerator) {
     super();
     this._pool = pool;
     this._idGenerator = idGenerator;
   }
 
-  async addLike(owner, commentId) {
+  async addCommentLike(owner, commentId) {
     const id = `like-${this._idGenerator()}`;
 
     const query = {
-      text: `INSERT INTO likes (id, comment_id, owner)
+      text: `INSERT INTO comment_likes (id, comment_id, owner)
              VALUES ($1, $2, $3)
              RETURNING id`,
       values: [id, commentId, owner],
@@ -24,7 +24,7 @@ class LikeRepositoryPostgres extends LikeRepository {
 
   async deleteLikeByOwnerAndCommentId({ owner, commentId }) {
     const query = {
-      text: 'DELETE FROM likes WHERE owner = $1 AND comment_id = $2',
+      text: 'DELETE FROM comment_likes WHERE owner = $1 AND comment_id = $2',
       values: [owner, commentId],
     };
 
@@ -35,9 +35,9 @@ class LikeRepositoryPostgres extends LikeRepository {
     }
   }
 
-  async getLikeCountByCommentId(commentId) {
+  async getLikeCountsByCommentId(commentId) {
     const query = {
-      text: 'SELECT * FROM likes WHERE comment_id = $1',
+      text: 'SELECT * FROM comment_likes WHERE comment_id = $1',
       values: [commentId],
     };
 
@@ -47,15 +47,12 @@ class LikeRepositoryPostgres extends LikeRepository {
 
   async isCommentLiked({ owner, commentId }) {
     const query = {
-      text: 'SELECT * FROM likes WHERE owner = $1 AND comment_id = $2',
+      text: 'SELECT * FROM comment_likes WHERE owner = $1 AND comment_id = $2',
       values: [owner, commentId],
     };
     const result = await this._pool.query(query);
-    if (result.rowCount) {
-      return true;
-    }
-    return false;
+    return result.rowCount > 0;
   }
 }
 
-module.exports = LikeRepositoryPostgres;
+module.exports = CommentLikeRepositoryPostgres;

@@ -6,9 +6,8 @@ class AddReplyUseCase {
     this._commentRepository = commentRepository;
   }
 
-  async execute(owner, requestParams, requestPayload) {
-    const { commentId } = requestParams;
-    await this._commentRepository.verifyCommentExistance({ ...requestParams });
+  async execute(owner, threadId, commentId, requestPayload) {
+    await this._commentRepository.verifyCommentExistance({ threadId, commentId });
     const registerReply = new RegisterReply({
       ...requestPayload,
     });

@@ -1,11 +1,11 @@
 /* eslint-disable camelcase */
 exports.up = (pgm) => {
-  pgm.createTable('comment_likes', {
+  pgm.createTable('thread_likes', {
     id: {
       type: 'VARCHAR(50)',
       primaryKey: true,
     },
-    comment_id: {
+    thread_id: {
       type: 'VARCHAR(50)',
       notNull: true,
     },
@@ -19,15 +19,15 @@ exports.up = (pgm) => {
     },
   });
 
-  pgm.addConstraint('comment_likes', 'fk_likes.comment_id_comments.id', {
+  pgm.addConstraint('thread_likes', 'fk_likes.thread_id_threads.id', {
     foreignKeys: {
-      columns: 'comment_id',
-      references: 'comments(id)',
+      columns: 'thread_id',
+      references: 'threads(id)',
       onDelete: 'CASCADE',
     },
   });
 
-  pgm.addConstraint('comment_likes', 'fk_likes.owner_users.id', {
+  pgm.addConstraint('thread_likes', 'fk_likes.owner_users.id', {
     foreignKeys: {
       columns: 'owner',
       references: 'users(id)',
@@ -37,7 +37,7 @@ exports.up = (pgm) => {
 };
 
 exports.down = (pgm) => {
-  pgm.dropTable('comment_likes');
-  pgm.dropConstraint('comment_likes', 'fk_likes.comment_id_comments.id');
-  pgm.dropConstraint('comment_likes', 'fk_likes.owner_users.id');
+  pgm.dropTable('thread_likes');
+  pgm.dropConstraint('thread_likes', 'fk_likes.thread_id_threads.id');
+  pgm.dropConstraint('thread_likes', 'fk_likes.owner_users.id');
 };

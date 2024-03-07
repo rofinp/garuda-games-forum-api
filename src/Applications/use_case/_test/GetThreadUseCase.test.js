@@ -1,7 +1,7 @@
 const ThreadRepository = require('../../../Domains/threads/ThreadRepository');
 const CommentRepository = require('../../../Domains/comments/CommentRepository');
 const ReplyRepository = require('../../../Domains/replies/ReplyRepository');
-const LikeRepository = require('../../../Domains/likes/LikeRepository');
+const CommentLikeRepository = require('../../../Domains/likes/CommentLikeRepository');
 const GetThreadUseCase = require('../GetThreadUseCase');
 
 /* eslint-disable no-restricted-syntax */
@@ -78,7 +78,7 @@ describe('The GetThreadUseCase', () => {
     const mockThreadRepository = new ThreadRepository();
     const mockCommentRepository = new CommentRepository();
     const mockReplyRepository = new ReplyRepository();
-    const mockLikeRepository = new LikeRepository();
+    const mockCommentLikeRepository = new CommentLikeRepository();
 
     /** mocking required function */
     mockThreadRepository.verifyThreadExistance = jest.fn()
@@ -89,7 +89,7 @@ describe('The GetThreadUseCase', () => {
       .mockImplementation(() => Promise.resolve(threadComments));
     mockReplyRepository.getRepliesByCommentId = jest.fn()
       .mockImplementation(() => Promise.resolve(commentReplies));
-    mockLikeRepository.getLikeCountByCommentId = jest.fn()
+    mockCommentLikeRepository.getLikeCountsByCommentId = jest.fn()
       .mockImplementation(() => Promise.resolve(commentLikes));
 
     /** creating the use case instance */
@@ -97,7 +97,7 @@ describe('The GetThreadUseCase', () => {
       threadRepository: mockThreadRepository,
       commentRepository: mockCommentRepository,
       replyRepository: mockReplyRepository,
-      likeRepository: mockLikeRepository,
+      commentLikeRepository: mockCommentLikeRepository,
     });
 
     for (const comment of threadComments) {
@@ -107,9 +107,9 @@ describe('The GetThreadUseCase', () => {
       }
 
       let replies = await mockReplyRepository.getRepliesByCommentId(commentId);
-      let likes = await mockLikeRepository.getLikeCountByCommentId(commentId);
+      let commentLikeCounts = await mockCommentLikeRepository.getLikeCountsByCommentId(commentId);
       replies = replies.filter((reply) => reply.comment_id === commentId);
-      likes = likes.filter((like) => like.comment_id === commentId);
+      commentLikeCounts = commentLikeCounts.filter((like) => like.comment_id === commentId);
 
       for (const reply of replies) {
         if (reply.is_deleted) {
@@ -122,23 +122,24 @@ describe('The GetThreadUseCase', () => {
       }) => ({
         id, content, date, username,
       }));
-      comment.likeCount = likes.length;
+
+      comment.likeCounts = commentLikeCounts.length;
     }
 
     /* Hapus beberapa properti dari setiap objek dalam array comments */
     const formattedComments = threadComments.map(({
-      id, username, date, replies, content, likeCount,
+      id, username, date, replies, content, likeCounts,
     }) => ({
       id,
       username,
       date,
       replies,
       content,
-      likeCount,
+      likeCounts,
     }));
 
     // Action
-    const detailThread = await getGetThreadUseCase.execute(useCaseParams);
+    const detailThread = await getGetThreadUseCase.execute(threadId);
 
     // Assert
     expect(mockThreadRepository.verifyThreadExistance)
@@ -152,7 +153,7 @@ describe('The GetThreadUseCase', () => {
     expect(mockReplyRepository.getRepliesByCommentId)
       .toHaveBeenCalledWith('comment-123');
 
-    expect(mockLikeRepository.getLikeCountByCommentId)
+    expect(mockCommentLikeRepository.getLikeCountsByCommentId)
       .toHaveBeenCalledWith('comment-123');
 
     expect(detailThread).toEqual({

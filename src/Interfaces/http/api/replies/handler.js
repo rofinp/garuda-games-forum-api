@@ -7,10 +7,11 @@ class RepliesHandler {
   }
 
   async postReplyHandler(request, h) {
+    const { threadId, commentId } = request.params;
     const { id: owner } = request.auth.credentials;
     const addReplyUseCase = this._container.getInstance(AddReplyUseCase.name);
     const addedReply = await addReplyUseCase
-      .execute(owner, request.params, request.payload);
+      .execute(owner, threadId, commentId, request.payload);
     return h.response({
       status: 'success',
       data: { addedReply },

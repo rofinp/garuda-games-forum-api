@@ -1,5 +1,5 @@
 const AddCommentLikeUseCase = require('../AddCommentLikeUseCase');
-const LikeRepository = require('../../../Domains/likes/LikeRepository');
+const CommentLikeRepository = require('../../../Domains/likes/CommentLikeRepository');
 const CommentRepository = require('../../../Domains/comments/CommentRepository');
 
 describe('The AddLikeUseCase class', () => {
@@ -14,34 +14,34 @@ describe('The AddLikeUseCase class', () => {
     const owner = 'user-123';
 
     /** create dependencies of the use case */
-    const mockLikeRepository = new LikeRepository();
+    const mockCommentLikeRepository = new CommentLikeRepository();
     const mockCommentRepository = new CommentRepository();
 
     /** mock the required functions */
     mockCommentRepository.verifyCommentExistance = jest.fn()
       .mockImplementation(() => Promise.resolve());
 
-    mockLikeRepository.isCommentLiked = jest.fn()
+    mockCommentLikeRepository.isCommentLiked = jest.fn()
       .mockImplementation(() => Promise.resolve(false));
-    mockLikeRepository.addLike = jest.fn()
+    mockCommentLikeRepository.addCommentLike = jest.fn()
       .mockImplementation(() => Promise.resolve({ id: 'like-123' }));
 
     /** create the use case instances */
     const getAddCommentLikeUseCase = new AddCommentLikeUseCase({
-      likeRepository: mockLikeRepository,
+      commentLikeRepository: mockCommentLikeRepository,
       commentRepository: mockCommentRepository,
     });
 
     // Action
-    await getAddCommentLikeUseCase.execute(owner, useCaseParams);
+    await getAddCommentLikeUseCase.execute(owner, commentId, threadId);
 
     // Assert
     expect(mockCommentRepository.verifyCommentExistance)
       .toHaveBeenCalledWith({ threadId, commentId });
 
-    expect(mockLikeRepository.isCommentLiked)
+    expect(mockCommentLikeRepository.isCommentLiked)
       .toHaveBeenCalledWith({ owner, commentId });
-    expect(mockLikeRepository.addLike)
+    expect(mockCommentLikeRepository.addCommentLike)
       .toHaveBeenCalledWith(owner, commentId);
   });
 
@@ -56,34 +56,34 @@ describe('The AddLikeUseCase class', () => {
     const owner = 'user-123';
 
     /** create dependencies of the use case */
-    const mockLikeRepository = new LikeRepository();
+    const mockCommentLikeRepository = new CommentLikeRepository();
     const mockCommentRepository = new CommentRepository();
 
     /** mock the required functions */
     mockCommentRepository.verifyCommentExistance = jest.fn()
       .mockImplementation(() => Promise.resolve());
 
-    mockLikeRepository.isCommentLiked = jest.fn()
+    mockCommentLikeRepository.isCommentLiked = jest.fn()
       .mockImplementation(() => Promise.resolve(true));
-    mockLikeRepository.deleteLikeByOwnerAndCommentId = jest.fn()
+    mockCommentLikeRepository.deleteLikeByOwnerAndCommentId = jest.fn()
       .mockImplementation(() => Promise.resolve());
 
     /** create the use case instances */
     const getAddCommentLikeUseCase = new AddCommentLikeUseCase({
-      likeRepository: mockLikeRepository,
+      commentLikeRepository: mockCommentLikeRepository,
       commentRepository: mockCommentRepository,
     });
 
     // Action
-    await getAddCommentLikeUseCase.execute(owner, useCaseParams);
+    await getAddCommentLikeUseCase.execute(owner, commentId, threadId);
 
     // Assert
     expect(mockCommentRepository.verifyCommentExistance)
       .toHaveBeenCalledWith({ threadId, commentId });
 
-    expect(mockLikeRepository.isCommentLiked)
+    expect(mockCommentLikeRepository.isCommentLiked)
       .toHaveBeenCalledWith({ owner, commentId });
-    expect(mockLikeRepository.deleteLikeByOwnerAndCommentId)
+    expect(mockCommentLikeRepository.deleteLikeByOwnerAndCommentId)
       .toHaveBeenCalledWith({ owner, commentId });
   });
 });
