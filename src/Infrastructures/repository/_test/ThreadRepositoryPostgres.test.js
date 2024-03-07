@@ -68,8 +68,9 @@ describe('ThreadRepositoryPostgres', () => {
         id: 'thread-123',
         title: 'untitled thread',
         body: 'hello world',
-        date: '2021-08-08T07:19:09.775Z',
         owner: 'user-123',
+        created_at: '2021-08-08T07:19:09.775Z',
+        updated_at: '2021-08-08T07:19:09.775Z',
       });
 
       // Action
@@ -80,8 +81,9 @@ describe('ThreadRepositoryPostgres', () => {
         id: 'thread-123',
         title: 'untitled thread',
         body: 'hello world',
-        date: '2021-08-08T07:19:09.775Z',
         username: 'rofinugraha',
+        created_at: '2021-08-08T07:19:09.775Z',
+        updated_at: '2021-08-08T07:19:09.775Z',
       });
     });
   });

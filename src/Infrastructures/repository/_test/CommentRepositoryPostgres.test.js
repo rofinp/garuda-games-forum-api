@@ -22,12 +22,10 @@ describe('CommentRepositoryPostgres', () => {
     await UsersTableTestHelper.addUser({
       id: 'user-123',
       username: 'rofinugraha',
+      fullname: 'Rofi Nugraha',
     });
 
-    await ThreadsTableTestHelper.addThread({
-      id: 'thread-123',
-      owner: 'user-123',
-    });
+    await ThreadsTableTestHelper.addThread({});
   });
 
   afterEach(async () => {
@@ -96,7 +94,7 @@ describe('CommentRepositoryPostgres', () => {
         id: 'comment-123',
         thread_id: 'thread-123',
         content: 'What a comment 1',
-        date: '2021-08-08T07:19:09.775Z',
+        created_at: '2021-08-08T07:19:09.775Z',
         is_deleted: false,
       };
 
@@ -104,7 +102,7 @@ describe('CommentRepositoryPostgres', () => {
         id: 'comment-321',
         thread_id: 'thread-123',
         content: 'What a comment 2',
-        date: '2021-09-09T07:19:09.775Z',
+        created_at: '2021-08-08T07:19:09.775Z',
         is_deleted: false,
       };
 

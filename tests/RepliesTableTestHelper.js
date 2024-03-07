@@ -7,13 +7,13 @@ const RepliesTableTestHelper = {
     commentId = 'comment-123',
     content = 'This is your mom reply',
     owner = 'user-123',
-    date = '2021-08-08T07:19:09.775Z',
+    createdAt = '2021-08-08T07:19:09.775Z',
     isDeleted = false,
   }) {
     const query = {
-      text: `INSERT INTO replies (id, comment_id, content, owner, date, is_deleted)
+      text: `INSERT INTO replies (id, comment_id, content, owner, created_at, is_deleted)
              VALUES ($1, $2, $3, $4, $5, $6)`,
-      values: [id, commentId, content, owner, date, isDeleted],
+      values: [id, commentId, content, owner, createdAt, isDeleted],
     };
     await pool.query(query);
   },

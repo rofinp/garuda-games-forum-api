@@ -13,12 +13,12 @@ class ReplyRepositoryPostgres extends ReplyRepository {
   async addReply(owner, commentId, registerReply) {
     const { content } = registerReply;
     const id = `reply-${this._idGenerator()}`;
-    const date = new Date().toISOString();
+    const createdAt = new Date().toISOString();
     const query = {
-      text: `INSERT INTO replies (id, comment_id, content, owner, date)
+      text: `INSERT INTO replies (id, comment_id, content, owner, created_at)
              VALUES ($1, $2, $3, $4, $5)
              RETURNING id, content, owner`,
-      values: [id, commentId, content, owner, date],
+      values: [id, commentId, content, owner, createdAt],
     };
     const result = await this._pool.query(query);
     return new RegisteredReply({ ...result.rows[0] });
@@ -40,12 +40,12 @@ class ReplyRepositoryPostgres extends ReplyRepository {
 
   async getRepliesByCommentId(commentId) {
     const query = {
-      text: `SELECT replies.id, replies.comment_id, replies.content, users.username, replies.date, replies.is_deleted
+      text: `SELECT replies.id, replies.comment_id, replies.content, users.username, replies.created_at, replies.is_deleted
              FROM replies
              INNER JOIN users ON replies.owner = users.id
              INNER JOIN comments ON replies.comment_id = comments.id
              WHERE replies.comment_id = $1
-             ORDER BY replies.date ASC`,
+             ORDER BY replies.created_at ASC`,
       values: [commentId],
     };
 

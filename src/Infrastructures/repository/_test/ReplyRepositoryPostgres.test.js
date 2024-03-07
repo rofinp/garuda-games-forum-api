@@ -23,17 +23,12 @@ describe('ReplyRepositoryPostgres', () => {
     await UsersTableTestHelper.addUser({
       id: 'user-123',
       username: 'rofinugraha',
+      fullname: 'Rofi Nugraha',
     });
 
-    await ThreadsTableTestHelper.addThread({
-      id: 'thread-123',
-      owner: 'user-123',
-    });
+    await ThreadsTableTestHelper.addThread({});
 
-    await CommentsTableTestHelper.addComment({
-      id: 'comment-123',
-      owner: 'user-123',
-    });
+    await CommentsTableTestHelper.addComment({});
   });
 
   afterEach(async () => {
@@ -137,7 +132,7 @@ describe('ReplyRepositoryPostgres', () => {
         id: 'reply-123',
         comment_id: 'comment-123',
         content: 'This is your mom reply',
-        date: '2021-08-08T07:19:09.775Z',
+        created_at: '2021-08-08T07:19:09.775Z',
         is_deleted: false,
       };
 
@@ -145,7 +140,7 @@ describe('ReplyRepositoryPostgres', () => {
         id: 'reply-321',
         comment_id: 'comment-123',
         content: 'This is your dad reply',
-        date: '2021-08-08T07:19:09.775Z',
+        created_at: '2021-08-08T07:19:09.775Z',
         is_deleted: false,
       };
 
@@ -214,9 +209,7 @@ describe('ReplyRepositoryPostgres', () => {
         threadId: 'thread-123',
         commentId: 'comment-123',
         replyId: 'reply-123',
-      }))
-        .rejects
-        .toThrow(NotFoundError);
+      })).rejects.toThrow(NotFoundError);
     });
   });
 
@@ -231,9 +224,7 @@ describe('ReplyRepositoryPostgres', () => {
       await expect(replyRepositoryPostgres.verifyReplyAuthorization({
         owner: '' || undefined || 'user-313',
         replyId: 'reply-123',
-      }))
-        .rejects
-        .toThrow(AuthorizationError);
+      })).rejects.toThrow(AuthorizationError);
     });
 
     it('should not throw an AuthorizationError when the user is authorized', async () => {
@@ -246,9 +237,7 @@ describe('ReplyRepositoryPostgres', () => {
       await expect(replyRepositoryPostgres.verifyReplyAuthorization({
         owner: 'user-123',
         replyId: 'reply-123',
-      }))
-        .resolves
-        .not.toThrow(AuthorizationError);
+      })).resolves.not.toThrow(AuthorizationError);
     });
   });
 });
