@@ -1,4 +1,7 @@
 const Hapi = require('@hapi/hapi');
+const HapiSwagger = require('hapi-swagger');
+const Inert = require('@hapi/inert');
+const Vision = require('@hapi/vision');
 const Jwt = require('@hapi/jwt');
 const ClientError = require('../../Commons/exceptions/ClientError');
 const DomainErrorTranslator = require('../../Commons/exceptions/DomainErrorTranslator');
@@ -24,6 +27,21 @@ const createServer = async (container) => {
   await server.register([
     {
       plugin: Jwt,
+    },
+    {
+      plugin: Inert,
+    },
+    {
+      plugin: Vision,
+    },
+    {
+      plugin: HapiSwagger,
+      options: {
+        info: {
+          title: 'Garuda Forum API Documentation',
+          version: '1.0.0',
+        },
+      },
     },
   ]);
 
