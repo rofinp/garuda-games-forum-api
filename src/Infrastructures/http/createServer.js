@@ -23,25 +23,21 @@ const createServer = async (container) => {
     },
   });
 
+  const swaggerOptions = {
+    info: {
+      title: 'Garuda Forum API Documentation',
+      version: '1.0.0',
+    },
+  };
+
   // registrasi plugin eksternal
   await server.register([
-    {
-      plugin: Jwt,
-    },
-    {
-      plugin: Inert,
-    },
-    {
-      plugin: Vision,
-    },
+    Jwt,
+    Inert,
+    Vision,
     {
       plugin: HapiSwagger,
-      options: {
-        info: {
-          title: 'Garuda Forum API Documentation',
-          version: '1.0.0',
-        },
-      },
+      options: swaggerOptions,
     },
   ]);
 
