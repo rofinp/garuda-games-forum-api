@@ -54,9 +54,16 @@ describe('/users endpoint', () => {
 
       // Assert
       const responseJson = JSON.parse(response.payload);
-      expect(response.statusCode).toEqual(400);
-      expect(responseJson.status).toEqual('fail');
-      expect(responseJson.message).toEqual('tidak dapat membuat user baru karena properti yang dibutuhkan tidak ada');
+      expect(responseJson).toHaveProperty('statusCode', 400);
+      expect(responseJson).toHaveProperty('error', 'Bad Request');
+      expect(responseJson).toHaveProperty('message', 'Invalid request payload input');
+
+      /* Berubah ketika menggunakan JOI sebagai validasi */
+      // const responseJson = JSON.parse(response.payload);
+      // expect(response.statusCode).toEqual(400);
+      // expect(responseJson.status).toEqual('fail');
+      // expect(responseJson.message)
+      // .toEqual('tidak dapat membuat user baru karena properti yang dibutuhkan tidak ada');
     });
 
     it('should respond with a 400 status code when the request payload does not meet data type specifications', async () => {
@@ -77,9 +84,16 @@ describe('/users endpoint', () => {
 
       // Assert
       const responseJson = JSON.parse(response.payload);
-      expect(response.statusCode).toEqual(400);
-      expect(responseJson.status).toEqual('fail');
-      expect(responseJson.message).toEqual('tidak dapat membuat user baru karena tipe data tidak sesuai');
+      expect(responseJson).toHaveProperty('statusCode', 400);
+      expect(responseJson).toHaveProperty('error', 'Bad Request');
+      expect(responseJson).toHaveProperty('message', 'Invalid request payload input');
+
+      /* Berubah ketika menggunakan JOI sebagai validasi */
+      // const responseJson = JSON.parse(response.payload);
+      // expect(response.statusCode).toEqual(400);
+      // expect(responseJson.status).toEqual('fail');
+      // expect(responseJson.message)
+      // .toEqual('tidak dapat membuat user baru karena tipe data tidak sesuai');
     });
 
     it('should respond with a 400 status code when the username exceeds 50 characters', async () => {
@@ -100,9 +114,17 @@ describe('/users endpoint', () => {
 
       // Assert
       const responseJson = JSON.parse(response.payload);
-      expect(response.statusCode).toEqual(400);
-      expect(responseJson.status).toEqual('fail');
-      expect(responseJson.message).toEqual('tidak dapat membuat user baru karena karakter username melebihi batas limit');
+      expect(responseJson).toHaveProperty('statusCode', 400);
+      expect(responseJson).toHaveProperty('error', 'Bad Request');
+      expect(responseJson).toHaveProperty('message', 'Invalid request payload input');
+
+      /* Berubah ketika menggunakan JOI sebagai validasi */
+      // const responseJson = JSON.parse(response.payload);
+      // console.log(responseJson);
+      // expect(response.statusCode).toEqual(400);
+      // expect(responseJson.status).toEqual('fail');
+      // expect(responseJson.message)
+      //   .toEqual('tidak dapat membuat user baru karena karakter username melebihi batas limit');
     });
 
     it('should respond with a 400 status code when the username contains a restricted character', async () => {
@@ -123,9 +145,16 @@ describe('/users endpoint', () => {
 
       // Assert
       const responseJson = JSON.parse(response.payload);
-      expect(response.statusCode).toEqual(400);
-      expect(responseJson.status).toEqual('fail');
-      expect(responseJson.message).toEqual('tidak dapat membuat user baru karena username mengandung karakter terlarang');
+      expect(responseJson).toHaveProperty('statusCode', 400);
+      expect(responseJson).toHaveProperty('error', 'Bad Request');
+      expect(responseJson).toHaveProperty('message', 'Invalid request payload input');
+
+      /* Berubah ketika menggunakan JOI sebagai validasi */
+      // const responseJson = JSON.parse(response.payload);
+      // expect(response.statusCode).toEqual(400);
+      // expect(responseJson.status).toEqual('fail');
+      // expect(responseJson.message)
+      //   .toEqual('tidak dapat membuat user baru karena username mengandung karakter terlarang');
     });
 
     it('should respond with a 400 status code when the username is unavailable', async () => {

@@ -7,27 +7,29 @@ const routes = (handler) => ([
     options: {
       handler: (request, h) => handler.postReplyHandler(request, h),
       auth: 'forumapi_jwt',
-      plugins: {
-        'hapi-swagger': {
-          description: 'Create a new reply',
-          notes: 'This API endpoint is used to create a new reply for a comment',
-          tags: ['api', 'replies'],
-          validate: {
-            payload: Joi.object({
+      description: 'Create a new reply',
+      notes: 'This API endpoint is used to create a new reply for a comment',
+      tags: ['api', 'replies'],
+      validate: {
+        params: Joi.object({
+          threadId: Joi.string().max(50).required(),
+          commentId: Joi.string().max(50).required(),
+        }).label('PostReplyParams'),
+        payload: Joi.object({
+          content: Joi.string().required().description('The content of the reply'),
+        }).label('PostReplyPayload'),
+      },
+      response: {
+        schema: Joi.object({
+          status: Joi.string().valid('success').required(),
+          data: Joi.object({
+            addedReply: Joi.object({
+              id: Joi.string().max(50).required().description('The unique identifier of the reply'),
               content: Joi.string().required().description('The content of the reply'),
-            }).label('PostRepliesPayload'),
-          },
-          response: {
-            schema: Joi.object({
-              status: Joi.string().valid('success').required(),
-              data: Joi.object({
-                id: Joi.string().required().description('The unique identifier of the reply'),
-                content: Joi.string().required().description('The content of the reply'),
-                owner: Joi.string().required().description('The owner of the reply'),
-              }),
-            }).label('PostRepliesResponse'),
-          },
-        },
+              owner: Joi.string().max(50).required().description('The owner id of the reply'),
+            }),
+          }),
+        }).label('PostReplyResponse'),
       },
     },
   },
@@ -37,17 +39,20 @@ const routes = (handler) => ([
     options: {
       handler: (request) => handler.deleteReplyHandler(request),
       auth: 'forumapi_jwt',
-      plugins: {
-        'hapi-swagger': {
-          description: 'Soft delete a reply',
-          notes: 'This API endpoint is used to soft delete a reply',
-          tags: ['api', 'replies'],
-          response: {
-            schema: Joi.object({
-              status: Joi.string().valid('success').required(),
-            }).label('DeleteRepliesResponse'),
-          },
-        },
+      description: 'Soft delete a reply',
+      notes: 'This API endpoint is used to soft delete a reply',
+      tags: ['api', 'replies'],
+      validate: {
+        params: Joi.object({
+          threadId: Joi.string().max(50).required(),
+          commentId: Joi.string().max(50).required(),
+          replyId: Joi.string().max(50).required(),
+        }).label('DeleteReplyParams'),
+      },
+      response: {
+        schema: Joi.object({
+          status: Joi.string().valid('success').required(),
+        }).label('DeleteReplyResponse'),
       },
     },
   },

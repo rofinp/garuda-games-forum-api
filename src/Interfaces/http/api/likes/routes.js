@@ -7,17 +7,18 @@ const routes = (handler) => ([
     options: {
       handler: (request, h) => handler.putThreadLikeHandler(request, h),
       auth: 'forumapi_jwt',
-      plugins: {
-        'hapi-swagger': {
-          description: 'Add or delete a like for a thread',
-          notes: 'This API endpoint is used to add or delete a like for a thread.',
-          tags: ['api', 'likes', 'threads'],
-          response: {
-            schema: Joi.object({
-              status: Joi.string().valid('success').required(),
-            }).label('PutThreadLikesResponse'),
-          },
-        },
+      description: 'Add or delete a like for a thread',
+      notes: 'This API endpoint is used to add or delete a like for a thread.',
+      tags: ['api', 'likes', 'threads'],
+      validate: {
+        params: Joi.object({
+          threadId: Joi.string().required(),
+        }).label('PutLikeParams'),
+      },
+      response: {
+        schema: Joi.object({
+          status: Joi.string().valid('success').required(),
+        }).label('PutLikeResponse'),
       },
     },
   },
@@ -27,17 +28,19 @@ const routes = (handler) => ([
     options: {
       handler: (request, h) => handler.putCommentLikeHandler(request, h),
       auth: 'forumapi_jwt',
-      plugins: {
-        'hapi-swagger': {
-          description: 'Add or delete a like for a comment',
-          notes: 'This API endpoint is used to add or delete a like for a comment.',
-          tags: ['api', 'likes', 'comments'],
-          response: {
-            schema: Joi.object({
-              status: Joi.string().valid('success').required(),
-            }).label('PutCommentLikesResponse'),
-          },
-        },
+      description: 'Add or delete a like for a comment',
+      notes: 'This API endpoint is used to add or delete a like for a comment.',
+      tags: ['api', 'likes', 'comments'],
+      validate: {
+        params: Joi.object({
+          threadId: Joi.string().required(),
+          commentId: Joi.string().required(),
+        }).label('PutLikeParams'),
+      },
+      response: {
+        schema: Joi.object({
+          status: Joi.string().valid('success').required(),
+        }).label('PutLikeResponse'),
       },
     },
   },
@@ -47,17 +50,20 @@ const routes = (handler) => ([
     options: {
       handler: (request, h) => handler.putReplyLikeHandler(request, h),
       auth: 'forumapi_jwt',
-      plugins: {
-        'hapi-swagger': {
-          description: 'Add or delete a like for a reply',
-          notes: 'This API endpoint is used to add or delete a like for a reply.',
-          tags: ['api', 'likes', 'replies'],
-          response: {
-            schema: Joi.object({
-              status: Joi.string().valid('success').required(),
-            }).label('PutReplyLikesResponse'),
-          },
-        },
+      description: 'Add or delete a like for a reply',
+      notes: 'This API endpoint is used to add or delete a like for a reply.',
+      tags: ['api', 'likes', 'replies'],
+      validate: {
+        params: Joi.object({
+          threadId: Joi.string().required(),
+          commentId: Joi.string().required(),
+          replyId: Joi.string().required(),
+        }).label('PutLikeParams'),
+      },
+      response: {
+        schema: Joi.object({
+          status: Joi.string().valid('success').required(),
+        }).label('PutLikeResponse'),
       },
     },
   },

@@ -137,9 +137,16 @@ describe('/threads/{threadId}/comments endpoint', () => {
 
       // Assert
       const responseJson = JSON.parse(response.payload);
-      expect(response.statusCode).toEqual(400);
-      expect(responseJson).toHaveProperty('status', 'fail');
-      expect(responseJson.message).toEqual('tidak dapat membuat komentar baru karena properti yang dibutuhkan tidak ada');
+      expect(responseJson).toHaveProperty('statusCode', 400);
+      expect(responseJson).toHaveProperty('error', 'Bad Request');
+      expect(responseJson).toHaveProperty('message', 'Invalid request payload input');
+
+      /* Berubah ketika menggunakan JOI sebagai validasi */
+      // const responseJson = JSON.parse(response.payload);
+      // expect(response.statusCode).toEqual(400);
+      // expect(responseJson).toHaveProperty('status', 'fail');
+      // expect(responseJson.message)
+      //   .toEqual('tidak dapat membuat komentar baru karena properti yang dibutuhkan tidak ada');
     });
 
     it('should respond with a 400 status code when the comment payload does not meet the data type specifications', async () => {
@@ -200,9 +207,16 @@ describe('/threads/{threadId}/comments endpoint', () => {
 
       // Assert
       const responseJson = JSON.parse(response.payload);
-      expect(response.statusCode).toEqual(400);
-      expect(responseJson).toHaveProperty('status', 'fail');
-      expect(responseJson.message).toEqual('tidak dapat membuat komentar baru karena tipe data tidak sesuai');
+      expect(responseJson).toHaveProperty('statusCode', 400);
+      expect(responseJson).toHaveProperty('error', 'Bad Request');
+      expect(responseJson).toHaveProperty('message', 'Invalid request payload input');
+
+      /* Berubah ketika menggunakan JOI sebagai validasi */
+      // const responseJson = JSON.parse(response.payload);
+      // expect(response.statusCode).toEqual(400);
+      // expect(responseJson).toHaveProperty('status', 'fail');
+      // expect(responseJson.message)
+      //   .toEqual('tidak dapat membuat komentar baru karena tipe data tidak sesuai');
     });
   });
 

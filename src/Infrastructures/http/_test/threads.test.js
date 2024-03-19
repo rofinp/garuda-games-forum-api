@@ -111,9 +111,16 @@ describe('/threads endpoint', () => {
 
       // Assert
       const responseJson = JSON.parse(response.payload);
-      expect(response).toHaveProperty('statusCode', 400);
-      expect(responseJson).toHaveProperty('status', 'fail');
-      expect(responseJson.message).toEqual('tidak dapat membuat thread baru karena properti yang dibutuhkan tidak ada');
+      expect(responseJson).toHaveProperty('statusCode', 400);
+      expect(responseJson).toHaveProperty('error', 'Bad Request');
+      expect(responseJson).toHaveProperty('message', 'Invalid request payload input');
+
+      /* Berubah ketika menggunakan JOI sebagai validasi */
+      // const responseJson = JSON.parse(response.payload);
+      // expect(response).toHaveProperty('statusCode', 400);
+      // expect(responseJson).toHaveProperty('status', 'fail');
+      // expect(responseJson.message)
+      // .toEqual('tidak dapat membuat thread baru karena properti yang dibutuhkan tidak ada');
     });
 
     it('should respond with a 400 status code when the thread payload does not meet data type specifications', async () => {
@@ -160,9 +167,16 @@ describe('/threads endpoint', () => {
 
       // Assert
       const responseJson = JSON.parse(response.payload);
-      expect(response).toHaveProperty('statusCode', 400);
-      expect(responseJson).toHaveProperty('status', 'fail');
-      expect(responseJson.message).toEqual('tidak dapat membuat thread baru karena tipe data tidak sesuai');
+      expect(responseJson).toHaveProperty('statusCode', 400);
+      expect(responseJson).toHaveProperty('error', 'Bad Request');
+      expect(responseJson).toHaveProperty('message', 'Invalid request payload input');
+
+      /* Berubah ketika menggunakan JOI sebagai validasi */
+      // const responseJson = JSON.parse(response.payload);
+      // expect(response).toHaveProperty('statusCode', 400);
+      // expect(responseJson).toHaveProperty('status', 'fail');
+      // expect(responseJson.message)
+      //   .toEqual('tidak dapat membuat thread baru karena tipe data tidak sesuai');
     });
 
     it('should respond with a 400 status code when the thread title exceeds 150 characters', async () => {
@@ -209,9 +223,16 @@ describe('/threads endpoint', () => {
 
       // Assert
       const responseJson = JSON.parse(response.payload);
-      expect(response.statusCode).toEqual(400);
-      expect(responseJson.status).toEqual('fail');
-      expect(responseJson.message).toEqual('tidak dapat membuat thread baru karena karakter title melebihi batas limit');
+      expect(responseJson).toHaveProperty('statusCode', 400);
+      expect(responseJson).toHaveProperty('error', 'Bad Request');
+      expect(responseJson).toHaveProperty('message', 'Invalid request payload input');
+
+      /* Berubah ketika menggunakan JOI sebagai validasi */
+      // const responseJson = JSON.parse(response.payload);
+      // expect(response.statusCode).toEqual(400);
+      // expect(responseJson.status).toEqual('fail');
+      // expect(responseJson.message)
+      //   .toEqual('tidak dapat membuat thread baru karena karakter title melebihi batas limit');
     });
   });
 
@@ -401,7 +422,6 @@ describe('/threads endpoint', () => {
         method: 'POST',
         url: `/threads/${threadId}/comments/${commentId1}/replies`,
         payload: {
-          commentId: commentId1,
           content: 'This is your mom reply',
         },
         headers: {
@@ -415,7 +435,6 @@ describe('/threads endpoint', () => {
         method: 'POST',
         url: `/threads/${threadId}/comments/${commentId1}/replies`,
         payload: {
-          commentId: commentId1,
           content: 'This is your dad reply',
         },
         headers: {

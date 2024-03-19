@@ -119,9 +119,15 @@ describe('/authentications endpoint', () => {
 
       // Assert
       const responseJson = JSON.parse(response.payload);
-      expect(response.statusCode).toEqual(400);
-      expect(responseJson.status).toEqual('fail');
-      expect(responseJson.message).toEqual('harus mengirimkan username dan password');
+      expect(responseJson).toHaveProperty('statusCode', 400);
+      expect(responseJson).toHaveProperty('error', 'Bad Request');
+      expect(responseJson).toHaveProperty('message', 'Invalid request payload input');
+
+      /* Berubah ketika menggunakan JOI sebagai validasi */
+      // const responseJson = JSON.parse(response.payload);
+      // expect(response.statusCode).toEqual(400);
+      // expect(responseJson.status).toEqual('fail');
+      // expect(responseJson.message).toEqual('harus mengirimkan username dan password');
     });
 
     it('should respond with a 400 status code if the login payload has the wrong data type', async () => {
@@ -141,9 +147,15 @@ describe('/authentications endpoint', () => {
 
       // Assert
       const responseJson = JSON.parse(response.payload);
-      expect(response.statusCode).toEqual(400);
-      expect(responseJson.status).toEqual('fail');
-      expect(responseJson.message).toEqual('username dan password harus string');
+      expect(responseJson).toHaveProperty('statusCode', 400);
+      expect(responseJson).toHaveProperty('error', 'Bad Request');
+      expect(responseJson).toHaveProperty('message', 'Invalid request payload input');
+
+      /* Berubah ketika menggunakan JOI sebagai validasi */
+      // const responseJson = JSON.parse(response.payload);
+      // expect(response.statusCode).toEqual(400);
+      // expect(responseJson.status).toEqual('fail');
+      // expect(responseJson.message).toEqual('username dan password harus string');
     });
   });
 
@@ -198,10 +210,17 @@ describe('/authentications endpoint', () => {
         payload: {},
       });
 
+      // Assert
       const responseJson = JSON.parse(response.payload);
-      expect(response.statusCode).toEqual(400);
-      expect(responseJson.status).toEqual('fail');
-      expect(responseJson.message).toEqual('harus mengirimkan token refresh');
+      expect(responseJson).toHaveProperty('statusCode', 400);
+      expect(responseJson).toHaveProperty('error', 'Bad Request');
+      expect(responseJson).toHaveProperty('message', 'Invalid request payload input');
+
+      /* Berubah ketika menggunakan JOI sebagai validasi */
+      // const responseJson = JSON.parse(response.payload);
+      // expect(response.statusCode).toEqual(400);
+      // expect(responseJson.status).toEqual('fail');
+      // expect(responseJson.message).toEqual('harus mengirimkan token refresh');
     });
 
     it('should respond with a 400 status code if the refresh token is not a string', async () => {
@@ -217,10 +236,17 @@ describe('/authentications endpoint', () => {
         },
       });
 
+      // Assert
       const responseJson = JSON.parse(response.payload);
-      expect(response.statusCode).toEqual(400);
-      expect(responseJson.status).toEqual('fail');
-      expect(responseJson.message).toEqual('refresh token harus string');
+      expect(responseJson).toHaveProperty('statusCode', 400);
+      expect(responseJson).toHaveProperty('error', 'Bad Request');
+      expect(responseJson).toHaveProperty('message', 'Invalid request payload input');
+
+      /* Berubah ketika menggunakan JOI sebagai validasi */
+      // const responseJson = JSON.parse(response.payload);
+      // expect(response.statusCode).toEqual(400);
+      // expect(responseJson.status).toEqual('fail');
+      // expect(responseJson.message).toEqual('refresh token harus string');
     });
 
     it('should respond with a 400 status code if the refresh token is invalid', async () => {
@@ -319,10 +345,17 @@ describe('/authentications endpoint', () => {
         payload: {},
       });
 
+      // Assert
       const responseJson = JSON.parse(response.payload);
-      expect(response.statusCode).toEqual(400);
-      expect(responseJson.status).toEqual('fail');
-      expect(responseJson.message).toEqual('harus mengirimkan token refresh');
+      expect(responseJson).toHaveProperty('statusCode', 400);
+      expect(responseJson).toHaveProperty('error', 'Bad Request');
+      expect(responseJson).toHaveProperty('message', 'Invalid request payload input');
+
+      /* Berubah ketika menggunakan JOI sebagai validasi */
+      // const responseJson = JSON.parse(response.payload);
+      // expect(response.statusCode).toEqual(400);
+      // expect(responseJson.status).toEqual('fail');
+      // expect(responseJson.message).toEqual('harus mengirimkan token refresh');
     });
 
     it('should respond with a 400 status code if the refresh token is not a string', async () => {
@@ -338,10 +371,17 @@ describe('/authentications endpoint', () => {
         },
       });
 
+      // Assert
       const responseJson = JSON.parse(response.payload);
-      expect(response.statusCode).toEqual(400);
-      expect(responseJson.status).toEqual('fail');
-      expect(responseJson.message).toEqual('refresh token harus string');
+      expect(responseJson).toHaveProperty('statusCode', 400);
+      expect(responseJson).toHaveProperty('error', 'Bad Request');
+      expect(responseJson).toHaveProperty('message', 'Invalid request payload input');
+
+      /* Berubah ketika menggunakan JOI sebagai validasi */
+      // const responseJson = JSON.parse(response.payload);
+      // expect(response.statusCode).toEqual(400);
+      // expect(responseJson.status).toEqual('fail');
+      // expect(responseJson.message).toEqual('refresh token harus string');
     });
   });
 });
