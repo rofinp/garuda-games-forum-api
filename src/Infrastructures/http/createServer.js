@@ -27,6 +27,10 @@ const createServer = async (container) => {
     info: {
       title: 'Garuda Forum API Documentation',
       version: '1.0.0',
+      contact: {
+        name: 'Rofi Nugraha',
+        email: 'rofinugraha.dev@gmail.com',
+      },
     },
   };
 
